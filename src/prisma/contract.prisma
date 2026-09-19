@@ -1,0 +1,86 @@
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique           // auth.users.id do Supabase
+  nome      String
+  email     String
+  role      String   @default("equipe") // "admin" | "equipe"
+  createdAt DateTime @default(now())
+}
+
+model Encontro {
+  id            String        @id @default(uuid())
+  nome          String        // "EJC 2025.1"
+  data          DateTime
+  paroquiaNome  String
+  paroquiaLat   Float?
+  paroquiaLng   Float?
+  localNome     String
+  localLat      Float?
+  localLng      Float?
+  vagasTotais   Int           @default(30)
+  ativo         Boolean       @default(true)
+  criadoEm      DateTime      @default(now())
+
+  encontristas  Encontrista[]
+  carros        Carro[]
+  configuracao  Configuracao?
+}
+
+model Configuracao {
+  id               String   @id @default(uuid())
+  encontroId       String   @unique
+  encontro         Encontro @relation(fields: [encontroId], references: [id])
+  pesoDistancia    Float    @default(1.0)
+  pesoFila         Float    @default(1.0)
+  pesoPresenca     Float    @default(1.0)
+  pesoIndicacao    Float    @default(1.0)
+  raioClusteringKm Float    @default(1.5)
+  atualizadoEm     DateTime @updatedAt
+}
+
+model Encontrista {
+  id             String     @id @default(uuid())
+  encontroId     String
+  encontro       Encontro   @relation(fields: [encontroId], references: [id])
+  nome           String
+  telefone       String?
+  endereco       String
+  cep            String?
+  lat            Float?
+  lng            Float?
+  distanciaKm    Float?     // calculada vs paróquia
+  posicaoFila    Int?       // ordem de inscrição
+  notaPresenca   Int        @default(5) // 0–10
+  notaIndicacao  Int        @default(5) // 0–10
+  status         Status     @default(INSCRITO)
+  score          Float?
+  prioridade     Prioridade?
+  carroId        String?
+  carro          Carro?     @relation(fields: [carroId], references: [id])
+  criadoEm       DateTime   @default(now())
+}
+
+model Carro {
+  id             String        @id @default(uuid())
+  encontroId     String
+  encontro       Encontro      @relation(fields: [encontroId], references: [id])
+  motorista      String
+  capacidade     Int           @default(3)
+  distanciaKm    Float?
+  tempoMin       Float?
+  encontristas   Encontrista[]
+  criadoEm       DateTime      @default(now())
+}
+
+enum Status {
+  INSCRITO
+  CONFIRMADO
+  FILA
+  DESISTIU
+}
+
+enum Prioridade {
+  ALTA
+  MEDIA
+  BAIXA
+}
