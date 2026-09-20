@@ -11,7 +11,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function Toolbar() {
+export function Toolbar({
+  formAberto,
+  onNovoEncontrista,
+}: {
+  formAberto: boolean;
+  onNovoEncontrista: () => void;
+}) {
   return (
     <div className="rounded-xl border border-primary/10 bg-card p-4 shadow-sm transition-shadow hover:shadow-md md:p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -50,9 +56,9 @@ export function Toolbar() {
         </Button>
       </div>
 
-      <Button className="h-10">
+      <Button className="h-10" onClick={onNovoEncontrista} aria-expanded={formAberto}>
         <Plus className="mr-2 h-4 w-4" />
-        Novo encontrista
+        {formAberto ? "Fechar cadastro" : "Novo encontrista"}
       </Button>
       </div>
     </div>

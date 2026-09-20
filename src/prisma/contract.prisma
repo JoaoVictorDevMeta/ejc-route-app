@@ -67,6 +67,10 @@ model Carro {
   encontroId     String
   encontro       Encontro      @relation(fields: [encontroId], references: [id])
   motorista      String
+  origemEndereco String?
+  origemCep      String?
+  origemLat      Float?
+  origemLng      Float?
   capacidade     Int           @default(3)
   distanciaKm    Float?
   tempoMin       Float?

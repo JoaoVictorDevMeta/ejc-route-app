@@ -1,12 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-const atividades = [
-  { titulo: "Encontro criado", descricao: "EJC 2025.1 aguardando inscrições", quando: "há 2 dias" },
-  { titulo: "Sistema pronto", descricao: "Configure pesos e cadastre encontristas", quando: "agora" },
-];
+type AtividadeRecenteProps = {
+  encontroNome?: string;
+  encontristas: number;
+  carros: number;
+};
 
-export function AtividadeRecente() {
+export function AtividadeRecente({ encontroNome, encontristas, carros }: AtividadeRecenteProps) {
+  const atividades = [
+    { titulo: encontroNome ? "Encontro ativo" : "Nenhum encontro ativo", descricao: encontroNome ?? "Cadastre um encontro para começar", quando: "agora" },
+    { titulo: "Encontristas cadastrados", descricao: `${encontristas} ${encontristas === 1 ? "pessoa pronta" : "pessoas prontas"} para organização`, quando: "atual" },
+    { titulo: "Pais de carro", descricao: `${carros} ${carros === 1 ? "origem configurada" : "origens configuradas"} para as rotas`, quando: "atual" },
+  ];
+
   return (
     <Card>
       <CardHeader>

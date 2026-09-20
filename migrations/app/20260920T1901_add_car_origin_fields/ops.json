@@ -1,0 +1,170 @@
+[
+  {
+    "id": "column.public.carro.origemCep",
+    "label": "Add column \"origemCep\" to \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "origemCep",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"origemCep\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemCep"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"origemCep\"",
+        "sql": "ALTER TABLE \"public\".\"carro\" ADD COLUMN \"origemCep\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"origemCep\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemCep"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.carro.origemEndereco",
+    "label": "Add column \"origemEndereco\" to \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "origemEndereco",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"origemEndereco\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemEndereco"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"origemEndereco\"",
+        "sql": "ALTER TABLE \"public\".\"carro\" ADD COLUMN \"origemEndereco\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"origemEndereco\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemEndereco"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.carro.origemLat",
+    "label": "Add column \"origemLat\" to \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "origemLat",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"origemLat\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemLat"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"origemLat\"",
+        "sql": "ALTER TABLE \"public\".\"carro\" ADD COLUMN \"origemLat\" float8"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"origemLat\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemLat"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.carro.origemLng",
+    "label": "Add column \"origemLng\" to \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "origemLng",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"origemLng\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemLng"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"origemLng\"",
+        "sql": "ALTER TABLE \"public\".\"carro\" ADD COLUMN \"origemLng\" float8"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"origemLng\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "carro",
+          "origemLng"
+        ]
+      }
+    ]
+  }
+]

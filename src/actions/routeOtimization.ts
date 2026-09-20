@@ -15,6 +15,7 @@ export async function otimizarEncontro(encontroId: string) {
   // 1. Busca dados do banco
   const encontro = await prisma.orm.public.Encontro
     .include('encontristas')
+    .include('carros')
     .include('configuracao')
     .first({ id: encontroId });
 
@@ -69,12 +70,20 @@ export async function otimizarEncontro(encontroId: string) {
 
   // 6. SA → solução refinada (VRP completo)
   const numCarros = Math.ceil(comScore.length / 3);
+  const carrosComOrigem = encontro.carros.filter(
+    (carro) => carro.origemLat != null && carro.origemLng != null
+  );
   const resultadoSA = otimizarVRP({
     paroquia,
     encontro: local,
     encontristas: comScore,
-    numCarros,
+    numCarros: carrosComOrigem.length || numCarros,
     capacidade: 3,
+    origens: carrosComOrigem.map((carro) => ({
+      latitude: carro.origemLat!,
+      longitude: carro.origemLng!,
+    })),
+    capacidades: carrosComOrigem.map((carro) => carro.capacidade),
   });
 
   return {

@@ -1,3 +1,8 @@
+"use client";
+
+import { useTransition } from "react";
+import { MapPin, Phone, Trash2 } from "lucide-react";
+import { deletarEncontrista } from "@/actions/encontristas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,12 +13,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreHorizontal } from "lucide-react";
+import { EditarEncontristaDialog } from "@/components/encontristas/editar-encontrista-dialog";
 
-// TODO: substituir por TanStack Table com dados reais
-const linhasDemo = [
-  { nome: "—", endereco: "—", distancia: "—", score: "—", prioridade: "—", status: "—" },
-];
+type EncontristaRow = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  endereco: string;
+  distanciaKm: number | null;
+  score: number | null;
+  prioridade: string | null;
+  status: string;
+};
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   CONFIRMADO: "default",
@@ -22,7 +33,14 @@ const statusVariant: Record<string, "default" | "secondary" | "outline" | "destr
   DESISTIU: "destructive",
 };
 
-export function TabelaPlaceholder() {
+export function TabelaPlaceholder({ encontristas }: { encontristas: EncontristaRow[] }) {
+  const [deletando, startDeleting] = useTransition();
+
+  function remover(id: string, nome: string) {
+    if (!window.confirm(`Remover ${nome} da lista de encontristas?`)) return;
+    startDeleting(() => deletarEncontrista(id));
+  }
+
   return (
     <div className="rounded-md border bg-background">
       <Table>
@@ -34,30 +52,42 @@ export function TabelaPlaceholder() {
             <TableHead>Score</TableHead>
             <TableHead className="hidden md:table-cell">Prioridade</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[60px]" />
+            <TableHead className="w-15" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {linhasDemo.map((l, i) => (
-            <TableRow key={i}>
-              <TableCell className="font-medium">{l.nome}</TableCell>
-              <TableCell className="hidden md:table-cell text-muted-foreground">
-                {l.endereco}
+          {encontristas.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                Nenhum encontrista cadastrado ainda.
               </TableCell>
-              <TableCell className="hidden lg:table-cell">{l.distancia}</TableCell>
-              <TableCell>{l.score}</TableCell>
+            </TableRow>
+          ) : encontristas.map((l) => (
+            <TableRow key={l.id} className="animate-row-in">
+              <TableCell className="font-medium">
+                <div>{l.nome}</div>
+                {l.telefone && <div className="mt-1 flex items-center gap-1 text-xs font-normal text-muted-foreground"><Phone className="h-3 w-3" />{l.telefone}</div>}
+              </TableCell>
+              <TableCell className="hidden max-w-60 truncate text-muted-foreground md:table-cell">
+                <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3 shrink-0" />{l.endereco}</span>
+              </TableCell>
+              <TableCell className="hidden lg:table-cell">{l.distanciaKm != null ? `${l.distanciaKm.toFixed(1)} km` : "—"}</TableCell>
+              <TableCell>{l.score != null ? l.score.toFixed(1) : "—"}</TableCell>
               <TableCell className="hidden md:table-cell">
-                <Badge variant="outline">{l.prioridade}</Badge>
+                <Badge variant="outline">{l.prioridade?.toLowerCase() ?? "sem prioridade"}</Badge>
               </TableCell>
               <TableCell>
                 <Badge variant={statusVariant[l.status] ?? "outline"}>
-                  {l.status}
+                  {l.status.toLowerCase()}
                 </Badge>
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="icon" aria-label="Ações">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <EditarEncontristaDialog id={l.id} nome={l.nome} telefone={l.telefone} status={l.status} prioridade={l.prioridade} />
+                  <Button variant="ghost" size="icon-sm" aria-label={`Excluir ${l.nome}`} disabled={deletando} onClick={() => remover(l.id, l.nome)} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -65,7 +95,7 @@ export function TabelaPlaceholder() {
       </Table>
 
       <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
-        <span>0 encontristas</span>
+        <span>{encontristas.length} {encontristas.length === 1 ? "encontrista" : "encontristas"}</span>
         <span>Página 1 de 1</span>
       </div>
     </div>

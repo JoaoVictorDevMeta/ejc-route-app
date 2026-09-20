@@ -1,18 +1,32 @@
-import { Toolbar } from "@/components/encontristas/toolbar";
-import { TabelaPlaceholder } from "@/components/encontristas/tabela-placeholder";
+import { prisma } from "@/lib/prisma";
+import { EncontristasContent } from "@/components/encontristas/encontristas-content";
 
-export default function EncontristasPage() {
+export default async function EncontristasPage() {
+  const encontro = await prisma.orm.public.Encontro
+    .include("encontristas")
+    .first({ ativo: true });
+
+  const encontristas = (encontro?.encontristas ?? []).map((encontrista) => ({
+    id: encontrista.id,
+    nome: encontrista.nome,
+    telefone: encontrista.telefone,
+    endereco: encontrista.endereco,
+    distanciaKm: encontrista.distanciaKm,
+    score: encontrista.score,
+    prioridade: encontrista.prioridade,
+    status: encontrista.status,
+  }));
+
   return (
-    <div className="space-y-6">
+    <div className="animate-page-in space-y-7">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Encontristas</h2>
-        <p className="text-sm text-muted-foreground">
-          Cadastro, priorização e acompanhamento.
+        <h2 className="text-3xl font-semibold tracking-tight">Encontristas</h2>
+        <p className="mt-2 text-base text-muted-foreground">
+          Cadastre pessoas, acompanhe os dados e prepare a organização das caronas.
         </p>
       </div>
 
-      <Toolbar />
-      <TabelaPlaceholder />
+      <EncontristasContent encontristas={encontristas} />
     </div>
   );
 }

@@ -113,6 +113,34 @@
                   "kind": "scalar"
                 }
               },
+              "origemCep": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "origemEndereco": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "origemLat": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "origemLng": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
               "tempoMin": {
                 "nullable": true,
                 "type": {
@@ -173,6 +201,18 @@
                 },
                 "motorista": {
                   "column": "motorista"
+                },
+                "origemCep": {
+                  "column": "origemCep"
+                },
+                "origemEndereco": {
+                  "column": "origemEndereco"
+                },
+                "origemLat": {
+                  "column": "origemLat"
+                },
+                "origemLng": {
+                  "column": "origemLng"
                 },
                 "tempoMin": {
                   "column": "tempoMin"
@@ -814,6 +854,26 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "origemCep": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "origemEndereco": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "origemLat": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": true
+                },
+                "origemLng": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": true
+                },
                 "tempoMin": {
                   "codecId": "pg/float8@1",
                   "nativeType": "float8",
@@ -1306,7 +1366,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "49bc6b37b8dc3c1486517903f7bab9bdbaf0622495183b3cc3a00e8ce49bbfdd"
+    "storageHash": "ada985f4687b16a1401c89e1ff922632731de20f4bc67c9501a0e3a4d100f556"
   },
   "execution": {
     "executionHash": "7f2348ad8c218f3fbaba815baeede474a25bf837fa5ce6f0f94ec8922043e54f",

@@ -137,6 +137,13 @@
 
 .animate-page-in { animation: page-in 420ms ease-out both; }
 
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-row-in { animation: row-in 360ms ease-out both; }
+
 .map-grid {
   background-image: linear-gradient(oklch(0.7 0.08 210 / 0.22) 1px, transparent 1px), linear-gradient(90deg, oklch(0.7 0.08 210 / 0.22) 1px, transparent 1px);
   background-size: 32px 32px;

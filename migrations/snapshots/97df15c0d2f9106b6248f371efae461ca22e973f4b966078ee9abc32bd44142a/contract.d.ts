@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'ada985f4687b16a1401c89e1ff922632731de20f4bc67c9501a0e3a4d100f556'>;
+  StorageHashBase<'97df15c0d2f9106b6248f371efae461ca22e973f4b966078ee9abc32bd44142a'>;
 export type ExecutionHash =
   ExecutionHashBase<'7f2348ad8c218f3fbaba815baeede474a25bf837fa5ce6f0f94ec8922043e54f'>;
 export type ProfileHash =
@@ -246,7 +246,7 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly encontroId: CodecTypes['pg/text@1']['output'];
       readonly motorista: CodecTypes['pg/text@1']['output'];
-      readonly origemEndereco: CodecTypes['pg/text@1']['output'] | null;
+      readonly origemEndereco: CodecTypes['pg/text@1']['output'];
       readonly origemCep: CodecTypes['pg/text@1']['output'] | null;
       readonly origemLat: CodecTypes['pg/float8@1']['output'] | null;
       readonly origemLng: CodecTypes['pg/float8@1']['output'] | null;
@@ -314,7 +314,7 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly encontroId: CodecTypes['pg/text@1']['input'];
       readonly motorista: CodecTypes['pg/text@1']['input'];
-      readonly origemEndereco: CodecTypes['pg/text@1']['input'] | null;
+      readonly origemEndereco: CodecTypes['pg/text@1']['input'];
       readonly origemCep: CodecTypes['pg/text@1']['input'] | null;
       readonly origemLat: CodecTypes['pg/float8@1']['input'] | null;
       readonly origemLng: CodecTypes['pg/float8@1']['input'] | null;
@@ -386,7 +386,7 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly motorista: CodecTypes['pg/text@1']['output'];
       readonly origemCep: CodecTypes['pg/text@1']['output'] | null;
-      readonly origemEndereco: CodecTypes['pg/text@1']['output'] | null;
+      readonly origemEndereco: CodecTypes['pg/text@1']['output'];
       readonly origemLat: CodecTypes['pg/float8@1']['output'] | null;
       readonly origemLng: CodecTypes['pg/float8@1']['output'] | null;
       readonly tempoMin: CodecTypes['pg/float8@1']['output'] | null;
@@ -454,7 +454,7 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly motorista: CodecTypes['pg/text@1']['input'];
       readonly origemCep: CodecTypes['pg/text@1']['input'] | null;
-      readonly origemEndereco: CodecTypes['pg/text@1']['input'] | null;
+      readonly origemEndereco: CodecTypes['pg/text@1']['input'];
       readonly origemLat: CodecTypes['pg/float8@1']['input'] | null;
       readonly origemLng: CodecTypes['pg/float8@1']['input'] | null;
       readonly tempoMin: CodecTypes['pg/float8@1']['input'] | null;
@@ -579,7 +579,7 @@ export namespace Models {
     id: CodecTypes['pg/text@1']['output'];
     encontroId: CodecTypes['pg/text@1']['output'];
     motorista: CodecTypes['pg/text@1']['output'];
-    origemEndereco: CodecTypes['pg/text@1']['output'] | null;
+    origemEndereco: CodecTypes['pg/text@1']['output'];
     origemCep: CodecTypes['pg/text@1']['output'] | null;
     origemLat: CodecTypes['pg/float8@1']['output'] | null;
     origemLng: CodecTypes['pg/float8@1']['output'] | null;
@@ -641,7 +641,7 @@ type ContractBase = Omit<
                 readonly origemEndereco: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
+                  readonly nullable: false;
                 };
                 readonly origemCep: {
                   readonly nativeType: 'text';
@@ -1107,7 +1107,7 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly origemEndereco: {
-                readonly nullable: true;
+                readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly origemCep: {

@@ -1,11 +1,13 @@
+import { prisma } from "@/lib/prisma";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { FormPesos } from "@/components/config/form-pesos";
+import { FormEncontro } from "@/components/config/form-encontro";
+import { EncontroAtual } from "@/components/config/encontro-atual";
 
-export default function ConfigPage() {
+export default async function ConfigPage() {
+  const encontroAtual = await prisma.orm.public.Encontro.first({ ativo: true });
+
   return (
     <div className="animate-page-in space-y-8">
       <div>
@@ -15,6 +17,8 @@ export default function ConfigPage() {
         </p>
       </div>
 
+      <EncontroAtual encontro={encontroAtual} />
+
       <Tabs defaultValue="encontro">
         <TabsList className="h-11 bg-primary/8 p-1">
           <TabsTrigger value="encontro">Encontro</TabsTrigger>
@@ -23,37 +27,7 @@ export default function ConfigPage() {
         </TabsList>
 
         <TabsContent value="encontro" className="mt-4">
-          <Card>
-            <CardHeader className="border-b bg-muted/30">
-              <CardTitle className="text-xl">Dados do encontro</CardTitle>
-              <CardDescription className="text-sm">Essas informações aparecem nas análises e ajudam a equipe a se orientar.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-5 p-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome do encontro</Label>
-                <Input id="nome" placeholder="EJC 2025.1" />
-                <p className="text-xs text-muted-foreground">Use um nome que a equipe reconheça rapidamente.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="vagas">Vagas totais</Label>
-                <Input id="vagas" type="number" placeholder="30" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="paroquia">Paróquia (endereço)</Label>
-                <Input id="paroquia" placeholder="Endereço da paróquia" />
-                <p className="text-xs text-muted-foreground">Será usada como referência para calcular as distâncias.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="local">Local do encontro</Label>
-                <Input id="local" placeholder="Endereço do local" />
-              </div>
-
-              <div className="flex justify-end gap-3 border-t pt-5 md:col-span-2">
-                <Button variant="outline">Cancelar</Button>
-                <Button>Salvar</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <FormEncontro />
         </TabsContent>
 
         <TabsContent value="pesos" className="mt-4">

@@ -4,8 +4,19 @@ import { Button } from "@/components/ui/button";
 import { StatsGrid } from "@/components/painel/stats-grid";
 import { MapaPlaceholder } from "@/components/painel/mapa-placeholder";
 import { AtividadeRecente } from "@/components/painel/atividade-recente";
+import { EncontroAtual } from "@/components/config/encontro-atual";
+import { prisma } from "@/lib/prisma";
 
-export default function PainelPage() {
+export default async function PainelPage() {
+  const encontroAtual = await prisma.orm.public.Encontro
+    .include("encontristas")
+    .include("carros")
+    .first({ ativo: true });
+  const encontristas = encontroAtual?.encontristas ?? [];
+  const carros = encontroAtual?.carros ?? [];
+  const confirmados = encontristas.filter((encontrista) => encontrista.status === "CONFIRMADO").length;
+  const fila = encontristas.filter((encontrista) => encontrista.status === "FILA").length;
+
   return (
     <div className="animate-page-in space-y-8">
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -33,13 +44,15 @@ export default function PainelPage() {
         </div>
       </div>
 
-      <StatsGrid />
+      <EncontroAtual encontro={encontroAtual} />
+
+      <StatsGrid encontristas={encontristas.length} confirmados={confirmados} fila={fila} carros={carros.length} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <MapaPlaceholder />
+          <MapaPlaceholder encontristas={encontristas.length} carros={carros.length} local={encontroAtual?.localNome} />
         </div>
-        <AtividadeRecente />
+        <AtividadeRecente encontroNome={encontroAtual?.nome} encontristas={encontristas.length} carros={carros.length} />
       </div>
     </div>
   );

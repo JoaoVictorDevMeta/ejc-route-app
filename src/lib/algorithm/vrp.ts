@@ -12,19 +12,22 @@ export type ConfigVRP = {
   encontristas: Ponto[];
   numCarros: number;
   capacidade: number;
+  origens?: Ponto[];
+  capacidades?: number[];
 };
 
 export function custoVRP(solucao: SolucaoVRP, config: ConfigVRP): number {
   let total = 0;
 
-  for (const rota of solucao.carros) {
+  for (const [indice, rota] of solucao.carros.entries()) {
     for (let i = 0; i < rota.length - 1; i++) {
       total += haversine(rota[i], rota[i + 1]);
     }
 
     const passageiros = rota.length - 2;
-    if (passageiros > config.capacidade) {
-      total += 100 * (passageiros - config.capacidade);
+    const capacidade = config.capacidades?.[indice] ?? config.capacidade;
+    if (passageiros > capacidade) {
+      total += 100 * (passageiros - capacidade);
     }
   }
 
@@ -86,8 +89,8 @@ export function vizinhoVRP(solucao: SolucaoVRP): SolucaoVRP {
 
 export function otimizarVRP(config: ConfigVRP): SAResultado<SolucaoVRP> {
   // Solução inicial: distribui round-robin
-  const carros: Ponto[][] = Array.from({ length: config.numCarros }, () => [
-    config.paroquia,
+  const carros: Ponto[][] = Array.from({ length: config.numCarros }, (_, indice) => [
+    config.origens?.[indice] ?? config.paroquia,
     config.encontro,
   ]);
 
