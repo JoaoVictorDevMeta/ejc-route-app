@@ -24,9 +24,9 @@ export function calcularScore(
 
   return (
     pesos.distancia * notaDistancia +
-    pesos.fila * notaFila +
-    pesos.presenca * notaPresenca +
-    pesos.indicacao * notaIndicacao
+    (pesos.fila ?? 0) * notaFila +
+    (pesos.presenca ?? 0) * notaPresenca +
+    (pesos.indicacao ?? 0) * notaIndicacao
   );
 }
 

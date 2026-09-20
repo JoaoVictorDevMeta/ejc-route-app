@@ -14,15 +14,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function UserNav() {
+export type UserInfo = {
+  id: string;
+  nome: string;
+  email: string;
+  role: string;
+};
+
+export function UserNav({ user }: { user: UserInfo }) {
   const router = useRouter();
-  const nome = "Equipe EJC";
-  const email = "equipe@ejc.org";
-  const initials = nome
+  const initials = user.nome
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
-    .join("");
+    .join("")
+    .toUpperCase();
 
   async function handleLogout() {
     const supabase = createClient();
@@ -45,8 +51,9 @@ export function UserNav() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col">
-            <span className="text-sm font-medium">{nome}</span>
-            <span className="text-xs text-muted-foreground">{email}</span>
+            <span className="text-sm font-medium">{user.nome}</span>
+            <span className="text-xs text-muted-foreground">{user.email}</span>
+            <span className="mt-1 text-[11px] capitalize text-muted-foreground">{user.role}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
