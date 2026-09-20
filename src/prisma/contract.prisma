@@ -35,9 +35,10 @@ model Configuracao {
   pesoDistancia    Float    @default(1.0)
   pesoFila         Float    @default(1.0)
   pesoPresenca     Float    @default(1.0)
-  pesoIndicacao    Float    @default(1.0)
-  raioClusteringKm Float    @default(1.5)
-  atualizadoEm     DateTime @default(now())
+  pesoIndicacao         Float    @default(1.0)
+  raioClusteringKm      Float    @default(1.5)
+  permitirRemanejamento Boolean  @default(false)
+  atualizadoEm          DateTime @default(now())
 }
 
 model Encontrista {

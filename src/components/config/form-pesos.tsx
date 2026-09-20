@@ -25,6 +25,7 @@ type Props = {
     pesoFila: number;
     pesoPresenca: number;
     pesoIndicacao: number;
+    permitirRemanejamento: boolean;
   } | null;
 };
 
@@ -41,6 +42,9 @@ export function FormPesos({ encontroId, configuracao }: Props) {
     presenca: (configuracao?.pesoPresenca ?? 1) > 0,
     indicacao: (configuracao?.pesoIndicacao ?? 1) > 0,
   });
+  const [permitirRemanejamento, setPermitirRemanejamento] = useState(
+    configuracao?.permitirRemanejamento ?? false
+  );
 
   function atualizarPeso(id: keyof typeof valores, value: number[]) {
     setValores((atual) => ({ ...atual, [id]: value[0] ?? 0 }));
@@ -63,7 +67,7 @@ export function FormPesos({ encontroId, configuracao }: Props) {
           indicacao: ativos.indicacao ? valores.indicacao : 0,
         };
 
-        await salvarPesos(encontroId, pesosParaSalvar);
+        await salvarPesos(encontroId, pesosParaSalvar, permitirRemanejamento);
         await atualizarScores();
         toast.success("Pesos atualizados com sucesso", {
           description: "Os scores dos encontristas foram recalculados."
@@ -118,6 +122,25 @@ export function FormPesos({ encontroId, configuracao }: Props) {
           </div>
           );
         })}
+
+        <div className="space-y-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 transition-colors hover:border-amber-500/40">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0 pr-4">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="remanejamento" className="text-sm font-semibold text-amber-900 dark:text-amber-300">Permitir Remanejamento</Label>
+              </div>
+              <p className="text-xs text-amber-800/80 dark:text-amber-400/80">
+                Se ativado, o sistema poderá colocar mais jovens por carro do que a capacidade original para evitar que pessoas fiquem de fora.
+              </p>
+            </div>
+            <Switch
+              id="remanejamento"
+              checked={permitirRemanejamento}
+              onCheckedChange={setPermitirRemanejamento}
+              aria-label="Permitir Remanejamento"
+            />
+          </div>
+        </div>
 
         <div className="flex flex-col justify-end gap-3 border-t pt-5 sm:flex-row">
           <Button variant="outline" onClick={restaurarPadrao} disabled={isPending}>Restaurar padrão</Button>

@@ -10,13 +10,15 @@ export async function salvarPesos(
     fila: number;
     presenca: number;
     indicacao: number;
-  }
+  },
+  permitirRemanejamento?: boolean
 ) {
   await prisma.orm.public.Configuracao.where({ encontroId }).update({
     pesoDistancia: pesos.distancia,
     pesoFila: pesos.fila,
     pesoPresenca: pesos.presenca,
     pesoIndicacao: pesos.indicacao,
+    ...(permitirRemanejamento !== undefined && { permitirRemanejamento }),
   });
 
   revalidatePath("/painel/config");

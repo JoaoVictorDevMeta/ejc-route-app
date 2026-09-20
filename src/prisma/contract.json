@@ -245,6 +245,13 @@
                   "kind": "scalar"
                 }
               },
+              "permitirRemanejamento": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "pesoDistancia": {
                 "nullable": false,
                 "type": {
@@ -309,6 +316,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "permitirRemanejamento": {
+                  "column": "permitirRemanejamento"
                 },
                 "pesoDistancia": {
                   "column": "pesoDistancia"
@@ -936,6 +946,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "permitirRemanejamento": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "pesoDistancia": {
                   "codecId": "pg/float8@1",
                   "default": {
@@ -1366,7 +1385,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ada985f4687b16a1401c89e1ff922632731de20f4bc67c9501a0e3a4d100f556"
+    "storageHash": "19b1908c12d00f78717f5eb54b98d5c50f37b46245a54eeaef3a77e900e5ad47"
   },
   "execution": {
     "executionHash": "7f2348ad8c218f3fbaba815baeede474a25bf837fa5ce6f0f94ec8922043e54f",

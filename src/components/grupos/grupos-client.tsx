@@ -46,6 +46,29 @@ export function GruposClient({ encontroId }: Props) {
         </Button>
       </div>
 
+      {resultado && !resultado.resumo.permitirRemanejamento && resultado.resumo.sobra && resultado.resumo.sobra.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold text-amber-800 dark:text-amber-300">
+                Capacidade atingida: {resultado.resumo.sobra.length} {resultado.resumo.sobra.length === 1 ? 'encontrista sobrou' : 'encontristas sobraram'}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Como o remanejamento não está permitido nas configurações, os seguintes encontristas (com menores scores) não foram alocados em rotas:
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {resultado.resumo.sobra.map(s => (
+                  <span key={s.id} className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-xs font-medium text-amber-800 dark:text-amber-400">
+                    {s.nome} (Score: {s.score?.toFixed(1) ?? 'N/A'})
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Tabs defaultValue="formados">
         <TabsList>
           <TabsTrigger value="formados">Formados (SA)</TabsTrigger>

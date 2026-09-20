@@ -85,20 +85,34 @@ export async function otimizarEncontro(encontroId: string) {
     (carro) => carro.origemLat != null && carro.origemLng != null
   );
 
+  const lugaresDisponiveis = encontro.carros.reduce((total, carro) => total + carro.capacidade, 0);
+  const lugaresFaltantes = Math.max(0, comScore.length - lugaresDisponiveis);
+  const permitirRemanejamento = config.permitirRemanejamento;
+
+  let encontristasParaAlocar = comScore;
+  let sobra: PontoWID[] = [];
+
+  if (!permitirRemanejamento && lugaresFaltantes > 0) {
+    // Ordenar pelo score (maior prioridade entra primeiro) e pegar apenas os que cabem
+    const ordenados = [...comScore].sort((a, b) => b.score - a.score);
+    encontristasParaAlocar = ordenados.slice(0, lugaresDisponiveis);
+    sobra = ordenados.slice(lugaresDisponiveis);
+  }
+
   // 5. Greedy → trios iniciais orientados pela origem do carro
   const carrosInput = carrosComOrigem.map((c) => ({
     id: c.id,
     origem: { latitude: c.origemLat!, longitude: c.origemLng! },
     capacidade: c.capacidade,
   }));
-  const gruposGreedy = formarGrupos(comScore, carrosInput, local);
+  const gruposGreedy = formarGrupos(encontristasParaAlocar, carrosInput, local);
 
   // 6. Matriz de Distâncias OSRM para SA (opcional, fallback interno para Haversine se falhar)
   const todosPontos = [
     paroquia,
     local,
     ...carrosInput.map((c) => c.origem),
-    ...comScore,
+    ...encontristasParaAlocar,
   ];
   const matrizDist = await matrizDistancias(todosPontos) ?? undefined;
 
@@ -107,13 +121,11 @@ export async function otimizarEncontro(encontroId: string) {
   const carrosNecessarios = gruposNecessarios;
   const carrosFaltantes = Math.max(0, carrosNecessarios - carrosComOrigem.length);
   const carrosSobressalentes = Math.max(0, carrosComOrigem.length - carrosNecessarios);
-  const lugaresDisponiveis = encontro.carros.reduce((total, carro) => total + carro.capacidade, 0);
-  const lugaresFaltantes = Math.max(0, comScore.length - lugaresDisponiveis);
 
   const configVRP = {
     paroquia,
     encontro: local,
-    encontristas: comScore,
+    encontristas: encontristasParaAlocar,
     numCarros: Math.max(1, carrosComOrigem.length || gruposNecessarios),
     capacidade: 3,
     origens: carrosInput.map((c) => c.origem),
@@ -184,6 +196,12 @@ export async function otimizarEncontro(encontroId: string) {
       lugaresDisponiveis,
       lugaresFaltantes,
       temCarroParaTodos: carrosFaltantes === 0 && lugaresFaltantes === 0,
+      sobra: sobra.map(s => ({
+        id: s.id,
+        nome: encontro.encontristas.find(e => e.id === s.id)?.nome ?? "Encontrista",
+        score: s.score
+      })),
+      permitirRemanejamento
     },
   };
 }
