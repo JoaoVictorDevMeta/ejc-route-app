@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,9 +35,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-sky-50 px-4 py-8 dark:bg-slate-950">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-40 dark:opacity-20"
+        style={{ backgroundImage: "url('/background/ejcbackground.jpeg')" }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-sky-50/65 backdrop-blur-[1px] dark:bg-slate-950/75"
+      />
+      <Card className="relative z-10 w-full max-w-sm border-white/70 bg-white/95 shadow-2xl shadow-sky-900/15 backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/30">
+        <CardHeader className="items-center gap-4">
+          <div className='w-full flex justify-center'>
+            <Image
+              src="/logo.jpeg"
+              alt="Logo do EJC"
+              width={64}
+              height={64}
+              loading="eager"
+              className="object-contain"
+            />
+          </div>
           <CardTitle className="text-center">EJC — Acesso da Equipe</CardTitle>
         </CardHeader>
         <CardContent>
@@ -62,7 +82,7 @@ export default function LoginPage() {
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-[40]" disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>

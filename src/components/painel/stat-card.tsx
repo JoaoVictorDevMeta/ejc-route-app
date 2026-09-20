@@ -11,17 +11,17 @@ type Props = {
 
 export function StatCard({ titulo, valor, descricao, icone: Icon, tendencia }: Props) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+    <Card className="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-[0.95rem] font-medium text-muted-foreground">
           {titulo}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <span className="rounded-lg bg-primary/10 p-2 text-primary"><Icon className="h-5 w-5" /></span>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{valor}</div>
+        <div className="text-3xl font-bold tracking-tight">{valor}</div>
         {(descricao || tendencia) && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {tendencia && (
               <span className={tendencia.positivo ? "text-emerald-600" : "text-destructive"}>
                 {tendencia.valor}{" "}

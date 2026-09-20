@@ -13,15 +13,16 @@ import {
 
 export function Toolbar() {
   return (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="rounded-xl border border-primary/10 bg-card p-4 shadow-sm transition-shadow hover:shadow-md md:p-5">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-1 flex-wrap items-center gap-2">
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por nome ou endereço..." className="pl-9" />
+          <Input placeholder="Buscar por nome ou endereço..." className="h-10 pl-9 text-sm" />
         </div>
 
         <Select>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="h-10 w-37.5">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -33,7 +34,7 @@ export function Toolbar() {
         </Select>
 
         <Select>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="h-10 w-37.5">
             <SelectValue placeholder="Prioridade" />
           </SelectTrigger>
           <SelectContent>
@@ -49,10 +50,11 @@ export function Toolbar() {
         </Button>
       </div>
 
-      <Button>
+      <Button className="h-10">
         <Plus className="mr-2 h-4 w-4" />
         Novo encontrista
       </Button>
+      </div>
     </div>
   );
 }

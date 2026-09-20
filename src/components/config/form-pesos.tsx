@@ -15,13 +15,13 @@ const pesos = [
 export function FormPesos() {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Pesos de priorização</CardTitle>
+      <CardHeader className="border-b bg-muted/30">
+        <CardTitle className="text-xl">O que deve ter mais prioridade?</CardTitle>
         <CardDescription>
-          Ajuste os pesos de cada critério. O score recalculado em tempo real.
+          Mova os controles para dizer ao sistema quais critérios pesam mais na organização das vagas.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-7 p-6">
         {pesos.map((p) => (
           <div key={p.id} className="space-y-3">
             <div className="flex items-center justify-between">
@@ -29,13 +29,13 @@ export function FormPesos() {
                 <Label htmlFor={p.id}>{p.label}</Label>
                 <p className="text-xs text-muted-foreground">{p.descricao}</p>
               </div>
-              <span className="text-sm font-medium">1.0</span>
+              <span className="rounded-md bg-primary/10 px-2.5 py-1 text-sm font-semibold text-primary">1,0</span>
             </div>
             <Slider id={p.id} defaultValue={[1]} min={0} max={5} step={0.1} />
           </div>
         ))}
 
-        <div className="flex justify-end gap-2 pt-4">
+        <div className="flex flex-col justify-end gap-3 border-t pt-5 sm:flex-row">
           <Button variant="outline">Restaurar padrão</Button>
           <Button>Salvar configuração</Button>
         </div>

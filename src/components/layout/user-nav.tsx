@@ -1,8 +1,10 @@
 "use client";
 
 import { LogOut, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function UserNav() {
-  // TODO: substituir pelos dados reais via useUser()
+  const router = useRouter();
   const nome = "Equipe EJC";
   const email = "equipe@ejc.org";
   const initials = nome
@@ -21,6 +23,13 @@ export function UserNav() {
     .map((n) => n[0])
     .slice(0, 2)
     .join("");
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <DropdownMenu>
@@ -46,8 +55,10 @@ export function UserNav() {
           Meu perfil
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        {/* TODO: integrar signOut do Supabase */}
-        <DropdownMenuItem className="text-destructive">
+        <DropdownMenuItem
+          className="text-destructive"
+          onClick={handleLogout}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Sair
         </DropdownMenuItem>

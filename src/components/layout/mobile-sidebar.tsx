@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Church, Menu } from "lucide-react";
+import Image from "next/image";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,7 @@ export function MobileSidebar() {
             className="flex items-center gap-2 font-semibold"
             onClick={() => setAberto(false)}
           >
-            <Church className="h-5 w-5 text-primary" />
+            <Image src="/logo.jpeg" alt="Logo do EJC" width={28} height={28} className="rounded-md object-contain" />
             <span>EJC · Externa</span>
           </Link>
         </div>

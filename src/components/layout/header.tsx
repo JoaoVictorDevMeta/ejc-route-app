@@ -4,10 +4,10 @@ import { UserNav } from "./user-nav";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:px-6">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-primary/10 bg-background/90 px-4 backdrop-blur-xl md:px-8">
       <div className="flex items-center gap-2">
         <MobileSidebar />
-        <h1 className="text-sm font-medium text-muted-foreground md:hidden">
+        <h1 className="text-base font-semibold text-foreground md:hidden">
           EJC · Externa
         </h1>
       </div>
