@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EnderecoFields } from "@/components/config/endereco-fields";
+import { ProcessLoading } from "@/components/ui/process-loading";
 
 const estadoInicial: CriarEncontristaState = {};
 
@@ -54,6 +55,12 @@ export function NovoEncontristaForm() {
               {state.error ?? state.success}
             </p>
           )}
+          <div className="md:col-span-2">
+            <ProcessLoading
+              active={pending}
+              steps={["Procurando endereço...", "Validando localização...", "Salvando encontrista..."]}
+            />
+          </div>
           <div className="flex justify-end md:col-span-2">
             <Button type="submit" disabled={pending} className="gap-2">
               <UserPlus className="h-4 w-4" />

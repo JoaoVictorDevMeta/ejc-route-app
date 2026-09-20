@@ -1,4 +1,4 @@
-import { CarFront, MapPin, Users, Wand2, RefreshCw } from "lucide-react";
+import { CarFront, MapPin, Users, Wand2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,13 +7,19 @@ import { NovoCarroForm } from "@/components/grupos/novo-carro-form";
 import { prisma } from "@/lib/prisma";
 
 export default async function GruposPage() {
-  const encontro = await prisma.orm.public.Encontro.include("carros").first({ ativo: true });
+  const encontro = await prisma.orm.public.Encontro.include("carros").include("encontristas").first({ ativo: true });
   const carros = (encontro?.carros ?? []).map((carro) => ({
     id: carro.id,
     motorista: carro.motorista,
     origemEndereco: carro.origemEndereco,
     capacidade: carro.capacidade,
   }));
+  const totalEncontristas = encontro?.encontristas.length ?? 0;
+  const lugaresDisponiveis = carros.reduce((total, carro) => total + carro.capacidade, 0);
+  const gruposNecessarios = Math.ceil(totalEncontristas / 3);
+  const carrosFaltantes = Math.max(0, gruposNecessarios - carros.length);
+  const lugaresFaltantes = Math.max(0, totalEncontristas - lugaresDisponiveis);
+  const capacidadeSuficiente = carrosFaltantes === 0 && lugaresFaltantes === 0;
 
   return (
     <div className="animate-page-in space-y-7">
@@ -56,7 +62,36 @@ export default async function GruposPage() {
             <p className="mt-1 text-lg font-semibold">{carros.length ? "Configurada" : "Pendente"}</p>
           </CardContent>
         </Card>
+        <Card className={capacidadeSuficiente ? "border-emerald-500/25 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
+          <CardContent className="pt-6">
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              {capacidadeSuficiente ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 text-amber-600" />}
+              Capacidade para o encontro
+            </p>
+            <p className={`mt-1 text-lg font-semibold ${capacidadeSuficiente ? "text-emerald-700" : "text-amber-700"}`}>
+              {capacidadeSuficiente ? "Suficiente" : "Ainda insuficiente"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {totalEncontristas} encontristas • {lugaresDisponiveis} lugares • {gruposNecessarios} grupos
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
+      {!capacidadeSuficiente && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex items-start gap-3 p-4 text-sm">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold text-amber-800 dark:text-amber-300">Ainda faltam carros para transportar todos</p>
+              <p className="mt-1 text-muted-foreground">
+                {carrosFaltantes > 0 && `Cadastre mais ${carrosFaltantes} ${carrosFaltantes === 1 ? "pai de carro" : "pais de carro"}. `}
+                {lugaresFaltantes > 0 && `Também faltam ${lugaresFaltantes} ${lugaresFaltantes === 1 ? "lugar" : "lugares"}.`}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <NovoCarroForm />
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProcessLoading } from "@/components/ui/process-loading";
 
 const estadoInicial: CriarCarroState = {};
 
@@ -52,6 +53,12 @@ export function NovoCarroForm() {
               {state.error ?? state.success}
             </p>
           )}
+          <div className="md:col-span-2">
+            <ProcessLoading
+              active={pending}
+              steps={["Procurando ponto de saída...", "Validando endereço do motorista...", "Salvando pai de carro..."]}
+            />
+          </div>
           <div className="flex justify-end border-t pt-5 md:col-span-2">
             <Button type="submit" disabled={pending} className="gap-2">
               <CarFront className="h-4 w-4" />
