@@ -1,0 +1,583 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.carro",
+    "label": "Create table \"carro\"",
+    "summary": "Creates table \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"carro\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"carro\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"carro\"",
+        "sql": "CREATE TABLE \"public\".\"carro\" (\n  \"capacidade\" int4 DEFAULT 3 NOT NULL,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"distanciaKm\" float8,\n  \"encontroId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"motorista\" text NOT NULL,\n  \"tempoMin\" float8,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"carro\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"carro\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.configuracao",
+    "label": "Create table \"configuracao\"",
+    "summary": "Creates table \"configuracao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "configuracao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"configuracao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"configuracao\"",
+        "sql": "CREATE TABLE \"public\".\"configuracao\" (\n  \"atualizadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"encontroId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"pesoDistancia\" float8 DEFAULT 1 NOT NULL,\n  \"pesoFila\" float8 DEFAULT 1 NOT NULL,\n  \"pesoIndicacao\" float8 DEFAULT 1 NOT NULL,\n  \"pesoPresenca\" float8 DEFAULT 1 NOT NULL,\n  \"raioClusteringKm\" float8 DEFAULT 1.5 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"configuracao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.encontrista",
+    "label": "Create table \"encontrista\"",
+    "summary": "Creates table \"encontrista\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "encontrista"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"encontrista\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"encontrista\"",
+        "sql": "CREATE TABLE \"public\".\"encontrista\" (\n  \"carroId\" text,\n  \"cep\" text,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"distanciaKm\" float8,\n  \"encontroId\" text NOT NULL,\n  \"endereco\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"lat\" float8,\n  \"lng\" float8,\n  \"nome\" text NOT NULL,\n  \"notaIndicacao\" int4 DEFAULT 5 NOT NULL,\n  \"notaPresenca\" int4 DEFAULT 5 NOT NULL,\n  \"posicaoFila\" int4,\n  \"prioridade\" text,\n  \"score\" float8,\n  \"status\" text DEFAULT 'INSCRITO' NOT NULL,\n  \"telefone\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"encontrista_prioridade_check_b73bfb8e\" CHECK (\"prioridade\" IN ('ALTA', 'MEDIA', 'BAIXA')),\n  CONSTRAINT \"encontrista_status_check_9c4ebe0e\" CHECK (\"status\" IN ('INSCRITO', 'CONFIRMADO', 'FILA', 'DESISTIU'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"encontrista\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.encontro",
+    "label": "Create table \"encontro\"",
+    "summary": "Creates table \"encontro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "encontro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"encontro\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontro\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"encontro\"",
+        "sql": "CREATE TABLE \"public\".\"encontro\" (\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"data\" timestamptz NOT NULL,\n  \"id\" text NOT NULL,\n  \"localLat\" float8,\n  \"localLng\" float8,\n  \"localNome\" text NOT NULL,\n  \"nome\" text NOT NULL,\n  \"paroquiaLat\" float8,\n  \"paroquiaLng\" float8,\n  \"paroquiaNome\" text NOT NULL,\n  \"vagasTotais\" int4 DEFAULT 30 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"encontro\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontro\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.profile",
+    "label": "Create table \"profile\"",
+    "summary": "Creates table \"profile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "profile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"profile\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"profile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"profile\"",
+        "sql": "CREATE TABLE \"public\".\"profile\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"nome\" text NOT NULL,\n  \"role\" text DEFAULT 'equipe' NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"profile\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"profile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.configuracao.configuracao_encontroId_key",
+    "label": "Add unique constraint on \"configuracao\" (encontroId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "configuracao_encontroId_key",
+        "table": "configuracao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"configuracao_encontroId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "configuracao_encontroId_key",
+          "public",
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"configuracao_encontroId_key\"",
+        "sql": "ALTER TABLE \"public\".\"configuracao\" ADD CONSTRAINT \"configuracao_encontroId_key\" UNIQUE (\"encontroId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"configuracao_encontroId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "configuracao_encontroId_key",
+          "public",
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.profile.profile_userId_key",
+    "label": "Add unique constraint on \"profile\" (userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "profile_userId_key",
+        "table": "profile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"profile_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "profile_userId_key",
+          "public",
+          "\"public\".\"profile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"profile_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"profile\" ADD CONSTRAINT \"profile_userId_key\" UNIQUE (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"profile_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "profile_userId_key",
+          "public",
+          "\"public\".\"profile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.carro.carro_encontroId_idx_5986ca36",
+    "label": "Create index \"carro_encontroId_idx_5986ca36\" on \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "carro_encontroId_idx_5986ca36",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"carro_encontroId_idx_5986ca36\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"carro_encontroId_idx_5986ca36\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"carro_encontroId_idx_5986ca36\"",
+        "sql": "CREATE INDEX \"carro_encontroId_idx_5986ca36\" ON \"public\".\"carro\" (\"encontroId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"carro_encontroId_idx_5986ca36\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"carro_encontroId_idx_5986ca36\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.encontrista.encontrista_carroId_idx_3d3e8554",
+    "label": "Create index \"encontrista_carroId_idx_3d3e8554\" on \"encontrista\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "encontrista_carroId_idx_3d3e8554",
+        "table": "encontrista"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"encontrista_carroId_idx_3d3e8554\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista_carroId_idx_3d3e8554\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"encontrista_carroId_idx_3d3e8554\"",
+        "sql": "CREATE INDEX \"encontrista_carroId_idx_3d3e8554\" ON \"public\".\"encontrista\" (\"carroId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"encontrista_carroId_idx_3d3e8554\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista_carroId_idx_3d3e8554\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.encontrista.encontrista_encontroId_idx_5986ca36",
+    "label": "Create index \"encontrista_encontroId_idx_5986ca36\" on \"encontrista\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "encontrista_encontroId_idx_5986ca36",
+        "table": "encontrista"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"encontrista_encontroId_idx_5986ca36\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista_encontroId_idx_5986ca36\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"encontrista_encontroId_idx_5986ca36\"",
+        "sql": "CREATE INDEX \"encontrista_encontroId_idx_5986ca36\" ON \"public\".\"encontrista\" (\"encontroId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"encontrista_encontroId_idx_5986ca36\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"encontrista_encontroId_idx_5986ca36\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.carro.carro_encontroId_fkey",
+    "label": "Add foreign key \"carro_encontroId_fkey\" on \"carro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "carro_encontroId_fkey",
+        "table": "carro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"carro_encontroId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "carro_encontroId_fkey",
+          "public",
+          "\"public\".\"carro\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"carro_encontroId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"carro\"\nADD CONSTRAINT \"carro_encontroId_fkey\"\nFOREIGN KEY (\"encontroId\")\nREFERENCES \"public\".\"encontro\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"carro_encontroId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "carro_encontroId_fkey",
+          "public",
+          "\"public\".\"carro\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.configuracao.configuracao_encontroId_fkey",
+    "label": "Add foreign key \"configuracao_encontroId_fkey\" on \"configuracao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "configuracao_encontroId_fkey",
+        "table": "configuracao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"configuracao_encontroId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "configuracao_encontroId_fkey",
+          "public",
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"configuracao_encontroId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"configuracao\"\nADD CONSTRAINT \"configuracao_encontroId_fkey\"\nFOREIGN KEY (\"encontroId\")\nREFERENCES \"public\".\"encontro\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"configuracao_encontroId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "configuracao_encontroId_fkey",
+          "public",
+          "\"public\".\"configuracao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.encontrista.encontrista_encontroId_fkey",
+    "label": "Add foreign key \"encontrista_encontroId_fkey\" on \"encontrista\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "encontrista_encontroId_fkey",
+        "table": "encontrista"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"encontrista_encontroId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "encontrista_encontroId_fkey",
+          "public",
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"encontrista_encontroId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"encontrista\"\nADD CONSTRAINT \"encontrista_encontroId_fkey\"\nFOREIGN KEY (\"encontroId\")\nREFERENCES \"public\".\"encontro\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"encontrista_encontroId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "encontrista_encontroId_fkey",
+          "public",
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.encontrista.encontrista_carroId_fkey",
+    "label": "Add foreign key \"encontrista_carroId_fkey\" on \"encontrista\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "encontrista_carroId_fkey",
+        "table": "encontrista"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"encontrista_carroId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "encontrista_carroId_fkey",
+          "public",
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"encontrista_carroId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"encontrista\"\nADD CONSTRAINT \"encontrista_carroId_fkey\"\nFOREIGN KEY (\"carroId\")\nREFERENCES \"public\".\"carro\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"encontrista_carroId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "encontrista_carroId_fkey",
+          "public",
+          "\"public\".\"encontrista\""
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+Sobre esta ferramenta
+
+Esta aplicação foi criada para ajudar a equipe da externa a organizar as buscas aos encontristas de forma mais justa e eficiente. Aqui você encontra os endereços em um mapa, vê as regiões de maior concentração, acompanha a prioridade de cada pessoa e forma os grupos de carro com base na proximidade.
+
+Nada é decidido automaticamente. A ferramenta apenas organiza as informações e faz os cálculos — a decisão final continua sendo da equipe, com transparência sobre os critérios usados.
+
+
+Sistema de Apoio à Externa do EJC
+
+Aplicação web full-stack desenvolvida para otimizar o processo de busca e entrega de encontristas durante os encontros do EJC. O sistema foi pensado para resolver um problema recorrente da equipe da externa: a dificuldade de decidir, de forma rápida e justa, quem buscar, em qual ordem e com qual agrupamento de carros.
+
+A ferramenta parte dos endereços cadastrados e aplica uma pipeline de análise geoespacial: geocodificação, cálculo de distância em relação à paróquia, identificação de zonas de concentração por clustering (DBSCAN), priorização por score ponderado (distância, fila, presença e indicação) e formação de trios por proximidade. A partir dos grupos formados, o sistema estima rotas e tempos de deslocamento usando o motor OSRM, exibindo os resultados em um mapa interativo e em uma planilha editável.
+
+O foco está em apoiar a decisão da equipe — não em automatizá-la. A interface foi desenhada para ser transparente e ajustável, permitindo que os pesos dos critérios sejam modificados em tempo real e que os agrupamentos sejam ajustados manualmente. O resultado é um processo mais organizado, mais justo com os encontristas e mais eficiente para quem está no volante.
+
+Stack: Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, TanStack Table, Leaflet, Supabase (Auth + Postgres), Prisma, OSRM.

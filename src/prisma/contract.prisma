@@ -1,15 +1,17 @@
+// use prisma-8
+
 model Profile {
   id        String   @id @default(uuid())
-  userId    String   @unique           // auth.users.id do Supabase
+  userId    String   @unique          
   nome      String
   email     String
-  role      String   @default("equipe") // "admin" | "equipe"
+  role      String   @default("equipe") 
   createdAt DateTime @default(now())
 }
 
 model Encontro {
   id            String        @id @default(uuid())
-  nome          String        // "EJC 2025.1"
+  nome          String       
   data          DateTime
   paroquiaNome  String
   paroquiaLat   Float?
@@ -35,7 +37,7 @@ model Configuracao {
   pesoPresenca     Float    @default(1.0)
   pesoIndicacao    Float    @default(1.0)
   raioClusteringKm Float    @default(1.5)
-  atualizadoEm     DateTime @updatedAt
+  atualizadoEm     DateTime @default(now())
 }
 
 model Encontrista {
