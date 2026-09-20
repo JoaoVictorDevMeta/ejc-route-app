@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { salvarPesos } from "@/actions/config";
+import { atualizarScores } from "@/actions/scores";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const criterios = [
   { id: "distancia", label: "Distância", descricao: "Quem mora mais perto pontua mais", obrigatorio: true },
@@ -14,17 +18,28 @@ const criterios = [
   { id: "indicacao", label: "Indicação", descricao: "Considera quem foi trazido por alguém engajado", obrigatorio: false },
 ] as const;
 
-export function FormPesos() {
+type Props = {
+  encontroId: string;
+  configuracao?: {
+    pesoDistancia: number;
+    pesoFila: number;
+    pesoPresenca: number;
+    pesoIndicacao: number;
+  } | null;
+};
+
+export function FormPesos({ encontroId, configuracao }: Props) {
+  const [isPending, startTransition] = useTransition();
   const [valores, setValores] = useState({
-    distancia: 1,
-    fila: 1,
-    presenca: 1,
-    indicacao: 1,
+    distancia: configuracao?.pesoDistancia ?? 1,
+    fila: configuracao?.pesoFila ?? 1,
+    presenca: configuracao?.pesoPresenca ?? 1,
+    indicacao: configuracao?.pesoIndicacao ?? 1,
   });
   const [ativos, setAtivos] = useState({
-    fila: true,
-    presenca: true,
-    indicacao: true,
+    fila: (configuracao?.pesoFila ?? 1) > 0,
+    presenca: (configuracao?.pesoPresenca ?? 1) > 0,
+    indicacao: (configuracao?.pesoIndicacao ?? 1) > 0,
   });
 
   function atualizarPeso(id: keyof typeof valores, value: number[]) {
@@ -34,6 +49,31 @@ export function FormPesos() {
   function restaurarPadrao() {
     setValores({ distancia: 1, fila: 1, presenca: 1, indicacao: 1 });
     setAtivos({ fila: true, presenca: true, indicacao: true });
+  }
+
+  function handleSalvar() {
+    if (!encontroId) return;
+
+    startTransition(async () => {
+      try {
+        const pesosParaSalvar = {
+          distancia: valores.distancia,
+          fila: ativos.fila ? valores.fila : 0,
+          presenca: ativos.presenca ? valores.presenca : 0,
+          indicacao: ativos.indicacao ? valores.indicacao : 0,
+        };
+
+        await salvarPesos(encontroId, pesosParaSalvar);
+        await atualizarScores();
+        toast.success("Pesos atualizados com sucesso", {
+          description: "Os scores dos encontristas foram recalculados."
+        });
+      } catch (error) {
+        toast.error("Erro ao salvar", {
+          description: "Ocorreu um erro ao salvar as configurações."
+        });
+      }
+    });
   }
 
   return (
@@ -80,8 +120,11 @@ export function FormPesos() {
         })}
 
         <div className="flex flex-col justify-end gap-3 border-t pt-5 sm:flex-row">
-          <Button variant="outline" onClick={restaurarPadrao}>Restaurar padrão</Button>
-          <Button>Salvar configuração</Button>
+          <Button variant="outline" onClick={restaurarPadrao} disabled={isPending}>Restaurar padrão</Button>
+          <Button onClick={handleSalvar} disabled={isPending || !encontroId}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Salvar configuração
+          </Button>
         </div>
       </CardContent>
     </Card>

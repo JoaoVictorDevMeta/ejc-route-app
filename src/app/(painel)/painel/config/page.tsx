@@ -6,7 +6,7 @@ import { FormEncontro } from "@/components/config/form-encontro";
 import { EncontroAtual } from "@/components/config/encontro-atual";
 
 export default async function ConfigPage() {
-  const encontroAtual = await prisma.orm.public.Encontro.first({ ativo: true });
+  const encontroAtual = await prisma.orm.public.Encontro.include("configuracao").first({ ativo: true });
 
   return (
     <div className="animate-page-in space-y-8">
@@ -31,7 +31,10 @@ export default async function ConfigPage() {
         </TabsContent>
 
         <TabsContent value="pesos" className="mt-4">
-          <FormPesos />
+          <FormPesos 
+            encontroId={encontroAtual?.id ?? ""} 
+            configuracao={encontroAtual?.configuracao} 
+          />
         </TabsContent>
 
         <TabsContent value="equipe" className="mt-4">

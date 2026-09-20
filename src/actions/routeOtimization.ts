@@ -3,15 +3,18 @@
 import { prisma } from "@/lib/prisma";
 import {
   dbscan,
-  formarTrios,
+  formarGrupos,
   otimizarVRP,
+  metricasVRP,
   encontristaParaPonto,
   paroquiaParaPonto,
   localParaPonto,
+  calcularScores,
+  matrizDistancias,
+  rotaPontos
 } from "@/lib/algorithm";
-import { rotaPontos } from "@/lib/algorithm/osrm";
-import type { Ponto } from "@/types";
-import { calcularScore } from "@/utils/CalcScore";
+import type { Ponto, Pesos, PontoWID } from "@/types";
+import type { SolucaoVRP } from "@/lib/algorithm/vrp";
 
 type GrupoRota = {
   indice: number;
@@ -20,7 +23,7 @@ type GrupoRota = {
     id: string;
     motorista: string;
     capacidade: number;
-    origem: Ponto | null;
+    origem: Ponto;
   } | null;
   osrm: Awaited<ReturnType<typeof rotaPontos>>;
 };
@@ -47,30 +50,29 @@ export async function otimizarEncontro(encontroId: string) {
     throw new Error("Paróquia ou local do encontro sem coordenadas.");
   }
 
-  const encontristas = encontro.encontristas
-    .filter((e) => e.lat != null && e.lng != null)
-    .map(encontristaParaPonto)
-    .filter((p): p is NonNullable<typeof p> => p !== null);
+  const encontristasRaw = encontro.encontristas.filter(
+    (e) => e.lat != null && e.lng != null
+  );
+
+  const pesos: Pesos = {
+    distancia: config.pesoDistancia,
+    fila: config.pesoFila,
+    presenca: config.pesoPresenca,
+    indicacao: config.pesoIndicacao,
+  };
 
   // 3. Calcula score de cada um (utils)
-  const total = encontristas.length;
-  const maxDistancia = Math.max(...encontristas.map((e) => e.score), 1);
+  const comScoresCalc = calcularScores(encontristasRaw, pesos);
 
-  const comScore = encontristas.map((e) => ({
-    ...e,
-    score: calcularScore(
-      // Precisamos do model original para o calcScore
-      encontro.encontristas.find((x) => x.id === e.id)!,
-      {
-        distancia: config.pesoDistancia,
-        fila: config.pesoFila,
-        presenca: config.pesoPresenca,
-        indicacao: config.pesoIndicacao,
-      },
-      total,
-      maxDistancia
-    ),
-  }));
+  const comScore: PontoWID[] = encontristasRaw.map((e) => {
+    const calc = comScoresCalc.find((c) => c.id === e.id)!;
+    return {
+      id: e.id,
+      latitude: e.lat!,
+      longitude: e.lng!,
+      score: calc.score,
+    };
+  });
 
   // 4. DBSCAN → zonas de concentração (análise visual)
   const { clusters, ruido } = dbscan(
@@ -79,13 +81,28 @@ export async function otimizarEncontro(encontroId: string) {
     3
   );
 
-  // 5. Greedy → trios iniciais
-  const trios = formarTrios(comScore, 3);
-
-  // 6. SA → solução refinada (VRP completo)
   const carrosComOrigem = encontro.carros.filter(
     (carro) => carro.origemLat != null && carro.origemLng != null
   );
+
+  // 5. Greedy → trios iniciais orientados pela origem do carro
+  const carrosInput = carrosComOrigem.map((c) => ({
+    id: c.id,
+    origem: { latitude: c.origemLat!, longitude: c.origemLng! },
+    capacidade: c.capacidade,
+  }));
+  const gruposGreedy = formarGrupos(comScore, carrosInput, local);
+
+  // 6. Matriz de Distâncias OSRM para SA (opcional, fallback interno para Haversine se falhar)
+  const todosPontos = [
+    paroquia,
+    local,
+    ...carrosInput.map((c) => c.origem),
+    ...comScore,
+  ];
+  const matrizDist = await matrizDistancias(todosPontos) ?? undefined;
+
+  // 7. SA → solução refinada (VRP completo)
   const gruposNecessarios = Math.ceil(comScore.length / 3);
   const carrosNecessarios = gruposNecessarios;
   const carrosFaltantes = Math.max(0, carrosNecessarios - carrosComOrigem.length);
@@ -93,34 +110,38 @@ export async function otimizarEncontro(encontroId: string) {
   const lugaresDisponiveis = encontro.carros.reduce((total, carro) => total + carro.capacidade, 0);
   const lugaresFaltantes = Math.max(0, comScore.length - lugaresDisponiveis);
 
-  const resultadoSA = otimizarVRP({
+  const configVRP = {
     paroquia,
     encontro: local,
     encontristas: comScore,
     numCarros: Math.max(1, carrosComOrigem.length || gruposNecessarios),
     capacidade: 3,
-    origens: carrosComOrigem.map((carro) => ({
-      latitude: carro.origemLat!,
-      longitude: carro.origemLng!,
-    })),
-    capacidades: carrosComOrigem.map((carro) => carro.capacidade),
-  });
+    origens: carrosInput.map((c) => c.origem),
+    capacidades: carrosInput.map((c) => c.capacidade),
+    pesoFairness: 30, // Penalidade para manter as rotas com distâncias similares
+    matrizDist,
+  };
 
+  const resultadoSA = otimizarVRP(configVRP);
+
+  // 8. Montar grupos finais a partir do resultado do SA
   const gruposRota: GrupoRota[] = [];
-  for (const [indice, grupo] of trios.entries()) {
+  for (const [indice, rota] of resultadoSA.melhorEstado.carros.entries()) {
+    // a rota do SA é [origem, ...encontristas, destino]
+    const membros = rota.slice(1, -1) as PontoWID[]; 
+    if (membros.length === 0) continue; // Carro vazio, ignora na rota final
+
     const carro = carrosComOrigem[indice] ?? null;
-    const origem = carro && carro.origemLat != null && carro.origemLng != null
-      ? { latitude: carro.origemLat, longitude: carro.origemLng }
-      : null;
-    const pontos = origem
-      ? [origem, ...grupo, local]
-      : [paroquia, ...grupo, local];
+    const origem = carro
+      ? { latitude: carro.origemLat!, longitude: carro.origemLng! }
+      : paroquia;
+    const pontosRota = [origem, ...membros, local];
 
     gruposRota.push({
       indice,
-      encontristas: grupo.map((ponto) => ({
-        id: ponto.id,
-        nome: encontro.encontristas.find((encontrista) => encontrista.id === ponto.id)?.nome ?? "Encontrista",
+      encontristas: membros.map((m) => ({
+        id: m.id,
+        nome: encontro.encontristas.find((e) => e.id === m.id)?.nome ?? "Encontrista",
       })),
       carro: carro
         ? {
@@ -130,16 +151,29 @@ export async function otimizarEncontro(encontroId: string) {
             origem,
           }
         : null,
-      osrm: await rotaPontos(pontos),
+      osrm: await rotaPontos(pontosRota),
     });
   }
+
+  // Métricas
+  const metricasSA = metricasVRP(resultadoSA.melhorEstado, configVRP);
+  
+  // Para comparar, precisamos converter o resultado do greedy pro formato SolucaoVRP
+  const solucaoGreedy: SolucaoVRP = {
+    carros: gruposGreedy.map(g => [g.origem, ...g.encontristas, local])
+  };
+  const metricasGreedy = metricasVRP(solucaoGreedy, configVRP);
 
   return {
     clusters,
     ruido,
-    triosIniciais: trios,
+    triosIniciais: gruposGreedy,
     solucaoSA: resultadoSA,
     gruposRota,
+    comparacao: {
+      greedy: metricasGreedy,
+      sa: metricasSA,
+    },
     resumo: {
       encontristas: comScore.length,
       gruposNecessarios,

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CardTrio } from "@/components/grupos/card-trio";
 import { NovoCarroForm } from "@/components/grupos/novo-carro-form";
+import { GruposClient } from "@/components/grupos/grupos-client";
 import { prisma } from "@/lib/prisma";
 
 export default async function GruposPage() {
@@ -32,14 +33,7 @@ export default async function GruposPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Recalcular
-          </Button>
-          <Button>
-            <Wand2 className="mr-2 h-4 w-4" />
-            Otimizar (SA)
-          </Button>
+          {/* Botões movidos para o GruposClient */}
         </div>
       </div>
 
@@ -110,29 +104,9 @@ export default async function GruposPage() {
         </Card>
       )}
 
-      <Tabs defaultValue="formados">
-        <TabsList>
-          <TabsTrigger value="formados">Formados</TabsTrigger>
-          <TabsTrigger value="sugestoes">Sugestões (greedy)</TabsTrigger>
-          <TabsTrigger value="otimizado">Otimizado (SA)</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="formados" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <CardTrio motorista="—" encontristas={[]} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="sugestoes" className="mt-4">
-          <p className="text-sm text-muted-foreground">Sugestões do greedy aparecerão aqui.</p>
-        </TabsContent>
-
-        <TabsContent value="otimizado" className="mt-4">
-          <p className="text-sm text-muted-foreground">
-            Resultado do Simulated Annealing aparecerá aqui.
-          </p>
-        </TabsContent>
-      </Tabs>
+      {carros.length > 0 && encontro && (
+        <GruposClient encontroId={encontro.id} />
+      )}
     </div>
   );
 }
