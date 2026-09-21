@@ -3,12 +3,13 @@
 import { useActionState } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Star } from "lucide-react";
 import { criarEncontrista, type CriarEncontristaState } from "@/actions/encontristas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { EnderecoFields } from "@/components/config/endereco-fields";
 import { ProcessLoading } from "@/components/ui/process-loading";
 
@@ -49,6 +50,18 @@ export function NovoEncontristaForm() {
           <div className="space-y-2">
             <Label htmlFor="telefone">Telefone <span className="font-normal text-muted-foreground">(opcional)</span></Label>
             <Input id="telefone" name="telefone" type="tel" placeholder="(00) 00000-0000" />
+          </div>
+          {/*<div className="space-y-2 md:col-span-1">
+            <Label htmlFor="notaPresenca">Nota de presença (0 a 10)</Label>
+            <Input id="notaPresenca" name="notaPresenca" type="number" min="0" max="10" defaultValue="5" />
+          </div>*/}
+          <div className="flex items-center gap-3 rounded-xl border bg-background/80 p-3 md:col-span-2">
+            <Star className="h-4 w-4 text-amber-500" />
+            <div className="flex-1">
+              <Label htmlFor="indicado">Encontrista Indicado</Label>
+              <p className="text-xs text-muted-foreground">Marcar esta opção indica prioridade na seleção dos carros</p>
+            </div>
+            <Switch id="indicado" name="indicado" />
           </div>
           {(state.error || state.success) && (
             <p className={state.error ? "text-sm text-destructive md:col-span-2" : "animate-pulse text-sm text-emerald-600 md:col-span-2"}>

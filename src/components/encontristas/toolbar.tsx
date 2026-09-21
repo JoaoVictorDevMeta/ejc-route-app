@@ -11,12 +11,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+export type Ordenacao = "criacao" | "alfabeto";
+
 export function Toolbar({
   formAberto,
   onNovoEncontrista,
+  busca,
+  onBuscaChange,
+  status,
+  onStatusChange,
+  prioridade,
+  onPrioridadeChange,
+  ordenacao,
+  onOrdenacaoChange,
 }: {
   formAberto: boolean;
   onNovoEncontrista: () => void;
+  busca: string;
+  onBuscaChange: (valor: string) => void;
+  status: string;
+  onStatusChange: (valor: string | null) => void;
+  prioridade: string;
+  onPrioridadeChange: (valor: string | null) => void;
+  ordenacao: Ordenacao;
+  onOrdenacaoChange: (valor: Ordenacao | null) => void;
 }) {
   return (
     <div className="rounded-xl border border-primary/10 bg-card p-4 shadow-sm transition-shadow hover:shadow-md md:p-5">
@@ -24,30 +42,55 @@ export function Toolbar({
       <div className="flex flex-1 flex-wrap items-center gap-2">
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Buscar por nome ou endereço..." className="h-10 pl-9 text-sm" />
+          <Input
+            placeholder="Buscar por nome ou endereço..."
+            className="h-10 pl-9 text-sm"
+            value={busca}
+            onChange={(e) => onBuscaChange(e.target.value)}
+          />
         </div>
 
-        <Select>
-          <SelectTrigger className="h-10 w-37.5">
-            <SelectValue placeholder="Status" />
+        <Select value={status} onValueChange={onStatusChange}>
+          <SelectTrigger className="h-10 w-[230px]">
+            <div className="flex items-center gap-2 w-full text-left">
+              <span className="text-xs font-medium text-muted-foreground shrink-0">Status:</span>
+              <SelectValue placeholder="Selecione..." />
+            </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="todos">Todos os status</SelectItem>
             <SelectItem value="confirmado">Confirmado</SelectItem>
-            <SelectItem value="fila">Fila</SelectItem>
+            <SelectItem value="fila">Na fila</SelectItem>
+            <SelectItem value="inscrito">Inscrito</SelectItem>
             <SelectItem value="desistiu">Desistiu</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select>
-          <SelectTrigger className="h-10 w-37.5">
-            <SelectValue placeholder="Prioridade" />
+        <Select value={prioridade} onValueChange={onPrioridadeChange}>
+          <SelectTrigger className="h-10 w-[250px]">
+            <div className="flex items-center gap-2 w-full text-left">
+              <span className="text-xs font-medium text-muted-foreground shrink-0">Prioridade:</span>
+              <SelectValue placeholder="Selecione..." />
+            </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todas</SelectItem>
-            <SelectItem value="alta">Alta</SelectItem>
-            <SelectItem value="media">Média</SelectItem>
-            <SelectItem value="baixa">Baixa</SelectItem>
+            <SelectItem value="todas">Todas as prioridades</SelectItem>
+            <SelectItem value="alta">Alta prioridade</SelectItem>
+            <SelectItem value="media">Média prioridade</SelectItem>
+            <SelectItem value="baixa">Baixa prioridade</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={ordenacao} onValueChange={(v) => onOrdenacaoChange((v ?? "criacao") as Ordenacao)}>
+          <SelectTrigger className="h-10 w-[260px]">
+            <div className="flex items-center gap-2 w-full text-left">
+              <span className="text-xs font-medium text-muted-foreground shrink-0">Ordenar por:</span>
+              <SelectValue placeholder="Selecione..." />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="criacao">Ordem de criação</SelectItem>
+            <SelectItem value="alfabeto">Ordem alfabética (A-Z)</SelectItem>
           </SelectContent>
         </Select>
 

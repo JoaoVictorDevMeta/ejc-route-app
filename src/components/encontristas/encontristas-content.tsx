@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Toolbar } from "@/components/encontristas/toolbar";
+import { useState, useMemo } from "react";
+import { Toolbar, type Ordenacao } from "@/components/encontristas/toolbar";
 import { NovoEncontristaForm } from "@/components/encontristas/novo-encontrista-form";
 import { TabelaPlaceholder } from "@/components/encontristas/tabela-placeholder";
 
@@ -14,16 +14,62 @@ type EncontristaRow = {
   score: number | null;
   prioridade: string | null;
   status: string;
+  notaPresenca: number;
+  notaIndicacao: number;
+  criadoEm: string;
 };
 
 export function EncontristasContent({ encontristas }: { encontristas: EncontristaRow[] }) {
   const [formAberto, setFormAberto] = useState(false);
+  const [busca, setBusca] = useState("");
+  const [status, setStatus] = useState("todos");
+  const [prioridade, setPrioridade] = useState("todas");
+  const [ordenacao, setOrdenacao] = useState<Ordenacao>("criacao");
+
+  const encontristasFiltrados = useMemo(() => {
+    let resultado = [...encontristas];
+
+    if (busca.trim()) {
+      const termo = busca.toLowerCase().trim();
+      resultado = resultado.filter(
+        (e) =>
+          e.nome.toLowerCase().includes(termo) ||
+          e.endereco.toLowerCase().includes(termo)
+      );
+    }
+
+    if (status !== "todos") {
+      const statusUpper = status.toUpperCase();
+      resultado = resultado.filter((e) => e.status === statusUpper);
+    }
+
+    if (prioridade !== "todas") {
+      const prioridadeUpper = prioridade.toUpperCase();
+      resultado = resultado.filter((e) => e.prioridade === prioridadeUpper);
+    }
+
+    if (ordenacao === "alfabeto") {
+      resultado.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    } else {
+      resultado.sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
+    }
+
+    return resultado;
+  }, [encontristas, busca, status, prioridade, ordenacao]);
 
   return (
     <>
       <Toolbar
         formAberto={formAberto}
         onNovoEncontrista={() => setFormAberto((aberto) => !aberto)}
+        busca={busca}
+        onBuscaChange={setBusca}
+        status={status}
+        onStatusChange={(v) => setStatus(v ?? "todos")}
+        prioridade={prioridade}
+        onPrioridadeChange={(v) => setPrioridade(v ?? "todas")}
+        ordenacao={ordenacao}
+        onOrdenacaoChange={(v) => setOrdenacao(v ?? "criacao")}
       />
       <div
         aria-hidden={!formAberto}
@@ -37,7 +83,7 @@ export function EncontristasContent({ encontristas }: { encontristas: Encontrist
           <NovoEncontristaForm />
         </div>
       </div>
-      <TabelaPlaceholder encontristas={encontristas} />
+      <TabelaPlaceholder encontristas={encontristasFiltrados} />
     </>
   );
 }

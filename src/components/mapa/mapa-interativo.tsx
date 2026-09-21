@@ -46,8 +46,8 @@ export function MapaInterativo({ points, routes, expanded = false }: { points: P
   const decodedRoutes = useMemo(() => routes.map((route) => ({ ...route, points: route.polyline ? decodePolyline(route.polyline) : [] })), [routes]);
 
   return (
-    <div className={`relative h-full w-full overflow-hidden ${expanded ? "min-h-[calc(100vh-10rem)]" : "min-h-155"}`}>
-      <MapContainer center={center} zoom={13} scrollWheelZoom className={`h-full w-full ${expanded ? "min-h-[calc(100vh-10rem)]" : "min-h-155"}`}>
+    <div className={`relative h-full w-full overflow-hidden ${expanded ? "min-h-[calc(100vh-10rem)]" : "min-h-[400px]"}`}>
+      <MapContainer center={center} zoom={13} scrollWheelZoom className={`h-full w-full ${expanded ? "min-h-[calc(100vh-10rem)]" : "min-h-[400px]"}`}>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <FitMap points={points} />
         {decodedRoutes.map((route) => route.points.length > 1 && (

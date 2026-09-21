@@ -15,6 +15,9 @@ export default async function EncontristasPage() {
     score: encontrista.score,
     prioridade: encontrista.prioridade,
     status: encontrista.status,
+    notaPresenca: encontrista.notaPresenca,
+    notaIndicacao: encontrista.notaIndicacao,
+    criadoEm: encontrista.criadoEm.toString(),
   }));
 
   return (

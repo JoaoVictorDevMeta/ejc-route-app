@@ -24,6 +24,9 @@ type EncontristaRow = {
   score: number | null;
   prioridade: string | null;
   status: string;
+  notaPresenca: number;
+  notaIndicacao: number;
+  criadoEm: string;
 };
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -31,6 +34,19 @@ const statusVariant: Record<string, "default" | "secondary" | "outline" | "destr
   FILA: "secondary",
   INSCRITO: "outline",
   DESISTIU: "destructive",
+};
+
+const statusLabel: Record<string, string> = {
+  INSCRITO: "Inscrito",
+  CONFIRMADO: "Confirmado",
+  FILA: "Na fila",
+  DESISTIU: "Desistiu",
+};
+
+const prioridadeLabel: Record<string, string> = {
+  ALTA: "Alta",
+  MEDIA: "Média",
+  BAIXA: "Baixa",
 };
 
 export function TabelaPlaceholder({ encontristas }: { encontristas: EncontristaRow[] }) {
@@ -74,16 +90,16 @@ export function TabelaPlaceholder({ encontristas }: { encontristas: EncontristaR
               <TableCell className="hidden lg:table-cell">{l.distanciaKm != null ? `${l.distanciaKm.toFixed(1)} km` : "—"}</TableCell>
               <TableCell>{l.score != null ? l.score.toFixed(1) : "—"}</TableCell>
               <TableCell className="hidden md:table-cell">
-                <Badge variant="outline">{l.prioridade?.toLowerCase() ?? "sem prioridade"}</Badge>
+                <Badge variant="outline">{l.prioridade ? prioridadeLabel[l.prioridade] ?? l.prioridade : "Sem prioridade"}</Badge>
               </TableCell>
               <TableCell>
                 <Badge variant={statusVariant[l.status] ?? "outline"}>
-                  {l.status.toLowerCase()}
+                  {statusLabel[l.status] ?? l.status}
                 </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <EditarEncontristaDialog id={l.id} nome={l.nome} telefone={l.telefone} status={l.status} prioridade={l.prioridade} />
+                  <EditarEncontristaDialog id={l.id} nome={l.nome} telefone={l.telefone} status={l.status} prioridade={l.prioridade} notaPresenca={l.notaPresenca} notaIndicacao={l.notaIndicacao} />
                   <Button variant="ghost" size="icon-sm" aria-label={`Excluir ${l.nome}`} disabled={deletando} onClick={() => remover(l.id, l.nome)} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </Button>

@@ -36,7 +36,7 @@ export function ProcessLoading({ steps, active = true }: ProcessLoadingProps) {
       <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-primary/10">
         <div className="h-full rounded-full bg-primary transition-[width] duration-700" style={{ width: `${progress}%` }} />
       </div>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="flex flex-col gap-2">
         {steps.map((step, index) => (
           <div key={step} className={cn("flex items-center gap-1.5 text-xs transition-colors", index <= currentStep ? "text-primary" : "text-muted-foreground/60")}>
             {index < currentStep ? <Check className="h-3.5 w-3.5" /> : <span className={cn("flex h-4 w-4 items-center justify-center rounded-full border text-[10px]", index === currentStep && "border-primary bg-primary text-primary-foreground")}>{index + 1}</span>}
