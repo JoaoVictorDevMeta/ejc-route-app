@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -9,13 +15,33 @@ import { Switch } from "@/components/ui/switch";
 import { salvarPesos } from "@/actions/config";
 import { atualizarScores } from "@/actions/scores";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 const criterios = [
-  { id: "distancia", label: "Distância", descricao: "Quem mora mais perto pontua mais", obrigatorio: true },
-  { id: "fila", label: "Fila", descricao: "Valoriza a ordem de inscrição", obrigatorio: false },
-  { id: "presenca", label: "Presença", descricao: "Considera a probabilidade de comparecer", obrigatorio: false },
-  { id: "indicacao", label: "Indicação", descricao: "Considera quem foi trazido por alguém engajado", obrigatorio: false },
+  {
+    id: "distancia",
+    label: "Mora perto da paróquia",
+    descricao: "Quem mora mais perto ganha mais prioridade.",
+    obrigatorio: true,
+  },
+  {
+    id: "fila",
+    label: "Ordem de inscrição",
+    descricao: "Quem se inscreveu primeiro ganha prioridade.",
+    obrigatorio: false,
+  },
+  {
+    id: "presenca",
+    label: "Chance de comparecer",
+    descricao: "Considera quem tem maior probabilidade de ir ao encontro.",
+    obrigatorio: false,
+  },
+  {
+    id: "indicacao",
+    label: "Indicação da equipe",
+    descricao: "Considera quem foi trazido ou indicado por alguém engajado.",
+    obrigatorio: false,
+  },
 ] as const;
 
 type Props = {
@@ -69,12 +95,13 @@ export function FormPesos({ encontroId, configuracao }: Props) {
 
         await salvarPesos(encontroId, pesosParaSalvar, permitirRemanejamento);
         await atualizarScores();
-        toast.success("Pesos atualizados com sucesso", {
-          description: "Os scores dos encontristas foram recalculados."
+        toast.success("Preferências salvas", {
+          description:
+            "A prioridade dos encontristas foi recalculada automaticamente.",
         });
-      } catch (error) {
-        toast.error("Erro ao salvar", {
-          description: "Ocorreu um erro ao salvar as configurações."
+      } catch {
+        toast.error("Não foi possível salvar", {
+          description: "Tente novamente em alguns instantes.",
         });
       }
     });
@@ -83,9 +110,10 @@ export function FormPesos({ encontroId, configuracao }: Props) {
   return (
     <Card>
       <CardHeader className="border-b bg-muted/30">
-        <CardTitle className="text-xl">O que deve ter mais prioridade?</CardTitle>
+        <CardTitle className="text-xl">O que é mais importante ao escolher?</CardTitle>
         <CardDescription>
-          A distância é sempre considerada. Os outros critérios podem ser ativados apenas quando fizerem sentido para este encontro.
+          A distância da paróquia é sempre considerada. Você pode ligar ou
+          desligar os outros critérios e ajustar o quanto cada um pesa.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-7 p-6">
@@ -93,60 +121,90 @@ export function FormPesos({ encontroId, configuracao }: Props) {
           const ativo = p.id === "distancia" ? true : ativos[p.id];
 
           return (
-          <div key={p.id} className="space-y-3 rounded-xl border border-primary/10 p-4 transition-colors hover:border-primary/30">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0 pr-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor={p.id} className="text-sm font-semibold">{p.label}</Label>
-                  {p.obrigatorio && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">Obrigatório</span>}
+            <div
+              key={p.id}
+              className="space-y-3 rounded-xl border border-primary/10 p-4 transition-colors hover:border-primary/30"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 pr-2">
+                  <Label htmlFor={p.id} className="text-sm font-semibold">
+                    {p.label}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{p.descricao}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">{p.descricao}</p>
+                {p.obrigatorio ? (
+                  <span className="whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                    Sempre
+                  </span>
+                ) : (
+                  <Switch
+                    id={`${p.id}-ativo`}
+                    checked={ativo}
+                    aria-label={`Usar critério ${p.label}`}
+                    onCheckedChange={(checked) =>
+                      setAtivos((atual) => ({ ...atual, [p.id]: checked }))
+                    }
+                  />
+                )}
               </div>
-              {p.obrigatorio ? (
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Sempre ativo</span>
-              ) : (
-                <Switch
-                  id={`${p.id}-ativo`}
-                  checked={ativo}
-                  aria-label={`Usar critério ${p.label}`}
-                  onCheckedChange={(checked) => {
-                    setAtivos((atual) => ({ ...atual, [p.id]: checked }));
-                  }}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground">Menos</span>
+                <Slider
+                  id={p.id}
+                  value={[valores[p.id]]}
+                  onValueChange={(value) =>
+                    atualizarPeso(
+                      p.id,
+                      Array.isArray(value) ? [...value] : [value]
+                    )
+                  }
+                  min={0}
+                  max={5}
+                  step={0.5}
+                  disabled={!ativo}
+                  className="flex-1"
                 />
-              )}
+                <span className="text-xs text-muted-foreground">Mais</span>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Slider id={p.id} value={[valores[p.id]]} onValueChange={(value) => atualizarPeso(p.id, Array.isArray(value) ? [...value] : [value])} min={0} max={5} step={0.1} disabled={!ativo} className="flex-1" />
-              <span className="min-w-10 rounded-md bg-primary/10 px-2 py-1 text-center text-sm font-semibold text-primary">{ativo ? valores[p.id].toFixed(1).replace(".", ",") : "0,0"}</span>
-            </div>
-          </div>
           );
         })}
 
-        <div className="space-y-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 transition-colors hover:border-amber-500/40">
-          <div className="flex items-center justify-between">
-            <div className="min-w-0 pr-4">
+        {/* Remanejamento — explicação clara */}
+        <div className="space-y-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 pr-2">
               <div className="flex items-center gap-2">
-                <Label htmlFor="remanejamento" className="text-sm font-semibold text-amber-900 dark:text-amber-300">Permitir Remanejamento</Label>
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <Label
+                  htmlFor="remanejamento"
+                  className="text-sm font-semibold text-amber-900 dark:text-amber-300"
+                >
+                  Permitir carros mais cheios
+                </Label>
               </div>
-              <p className="text-xs text-amber-800/80 dark:text-amber-400/80">
-                Se ativado, o sistema poderá colocar mais jovens por carro do que a capacidade original para evitar que pessoas fiquem de fora.
+              <p className="mt-1 text-xs text-amber-800/80 dark:text-amber-400/80">
+                Quando ligado, o sistema pode colocar mais gente por carro do que
+                a capacidade normal para ninguém ficar de fora. Use com
+                moderação.
               </p>
             </div>
             <Switch
               id="remanejamento"
               checked={permitirRemanejamento}
               onCheckedChange={setPermitirRemanejamento}
-              aria-label="Permitir Remanejamento"
+              aria-label="Permitir carros mais cheios"
             />
           </div>
         </div>
 
         <div className="flex flex-col justify-end gap-3 border-t pt-5 sm:flex-row">
-          <Button variant="outline" onClick={restaurarPadrao} disabled={isPending}>Restaurar padrão</Button>
+          <Button variant="outline" onClick={restaurarPadrao} disabled={isPending}>
+            Restaurar padrão
+          </Button>
           <Button onClick={handleSalvar} disabled={isPending || !encontroId}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Salvar configuração
+            Salvar preferências
           </Button>
         </div>
       </CardContent>

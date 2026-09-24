@@ -19,12 +19,16 @@ type EncontristaRow = {
   criadoEm: string;
 };
 
-export function EncontristasContent({ encontristas }: { encontristas: EncontristaRow[] }) {
+export function EncontristasContent({
+  encontristas,
+}: {
+  encontristas: EncontristaRow[];
+}) {
   const [formAberto, setFormAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("todos");
   const [prioridade, setPrioridade] = useState("todas");
-  const [ordenacao, setOrdenacao] = useState<Ordenacao>("criacao");
+  const [ordenacao, setOrdenacao] = useState<Ordenacao>("alfabeto");
 
   const encontristasFiltrados = useMemo(() => {
     let resultado = [...encontristas];
@@ -69,7 +73,7 @@ export function EncontristasContent({ encontristas }: { encontristas: Encontrist
         prioridade={prioridade}
         onPrioridadeChange={(v) => setPrioridade(v ?? "todas")}
         ordenacao={ordenacao}
-        onOrdenacaoChange={(v) => setOrdenacao(v ?? "criacao")}
+        onOrdenacaoChange={(v) => setOrdenacao(v ?? "alfabeto")}
       />
       <div
         aria-hidden={!formAberto}

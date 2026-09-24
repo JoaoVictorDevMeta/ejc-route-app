@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { geocodificarEndereco } from "@/lib/geocoding";
 import { haversine } from "@/lib/algorithm/haversine";
+import { atualizarScores } from "@/actions/scores";
 
 export type CriarEncontristaState = {
   error?: string;
@@ -18,54 +19,44 @@ export async function atualizarEncontrista(
   const nome = String(formData.get("nome") ?? "").trim();
   const telefone = String(formData.get("telefone") ?? "").trim();
   const status = String(formData.get("status") ?? "INSCRITO");
-  const prioridade = String(formData.get("prioridade") ?? "");
-  const notaPresenca = parseInt(String(formData.get("notaPresenca") ?? "5"), 10);
   const indicado = formData.get("indicado") === "on";
   const notaIndicacao = indicado ? 10 : 0;
   const statusPermitidos = ["INSCRITO", "CONFIRMADO", "FILA", "DESISTIU"] as const;
-  const prioridadePermitida = ["ALTA", "MEDIA", "BAIXA"] as const;
 
   if (!id || !nome) return { error: "Informe o nome do encontrista." };
   if (!statusPermitidos.includes(status as (typeof statusPermitidos)[number])) {
-    return { error: "Status inválido." };
-  }
-  if (prioridade && !prioridadePermitida.includes(prioridade as (typeof prioridadePermitida)[number])) {
-    return { error: "Prioridade inválida." };
+    return { error: "Situação inválida." };
   }
 
   const encontrista = await prisma.orm.public.Encontrista.first({ id });
-  if (encontrista) {
-    const config = await prisma.orm.public.Configuracao.first({ encontroId: encontrista.encontroId });
-    const pesoPresenca = config?.pesoPresenca ?? 1.0;
-    const pesoIndicacao = config?.pesoIndicacao ?? 1.0;
-    // O score real precisaria considerar a distância também, mas como pedido, atualizamos apenas
-    // as partes de presença e indicação. Para manter a parte da distância caso exista, 
-    // podemos apenas adicionar a parte da distância atual.
-    // Usamos um cálculo simples apenas como base:
-    const notaDistancia = encontrista.score ? (encontrista.score - ((pesoPresenca * encontrista.notaPresenca) + (pesoIndicacao * encontrista.notaIndicacao))) : 0;
-    const score = notaDistancia + (pesoPresenca * notaPresenca) + (pesoIndicacao * notaIndicacao);
+  if (!encontrista) return { error: "Encontrista não encontrado." };
 
-    await prisma.orm.public.Encontrista.where({ id }).update({
-      nome,
-      telefone: telefone || null,
-      status: status as (typeof statusPermitidos)[number],
-      prioridade: prioridade ? prioridade as (typeof prioridadePermitida)[number] : null,
-      notaPresenca,
-      notaIndicacao,
-      score,
-    });
-  }
+  await prisma.orm.public.Encontrista.where({ id }).update({
+    nome,
+    telefone: telefone || null,
+    status: status as (typeof statusPermitidos)[number],
+    notaIndicacao,
+  });
+
+  // Recalcula prioridades de TODOS (a classificação ALTA/MÉDIA/BAIXA depende
+  // da distribuição dos scores, então muda quando alguém é incluído ou alterado).
+  await atualizarScores();
 
   revalidatePath("/painel/encontristas");
   revalidatePath("/painel");
+  revalidatePath("/painel/grupos");
+
   return { success: "Encontrista atualizado com sucesso." };
 }
 
 export async function deletarEncontrista(id: string) {
   if (!id) return;
   await prisma.orm.public.Encontrista.where({ id }).delete();
+  await atualizarScores();
+
   revalidatePath("/painel/encontristas");
   revalidatePath("/painel");
+  revalidatePath("/painel/grupos");
 }
 
 export async function criarEncontrista(
@@ -87,14 +78,18 @@ export async function criarEncontrista(
   const encontro = await prisma.orm.public.Encontro.first({ ativo: true });
 
   if (!encontro) {
-    return { error: "Nenhum encontro ativo foi configurado ainda." };
+    return {
+      error:
+        "Ainda não existe um encontro ativo. Cadastre o encontro antes de adicionar pessoas.",
+    };
   }
 
   const coordenadas = await geocodificarEndereco(endereco, cep);
 
   if (!coordenadas) {
     return {
-      error: "Não encontramos esse endereço. Confira a rua, número, bairro e CEP.",
+      error:
+        "Não encontramos esse endereço. Confira a rua, número, bairro e CEP.",
     };
   }
 
@@ -106,10 +101,12 @@ export async function criarEncontrista(
         )
       : null;
 
-  const config = await prisma.orm.public.Configuracao.first({ encontroId: encontro.id });
+  const config = await prisma.orm.public.Configuracao.first({
+    encontroId: encontro.id,
+  });
   const pesoPresenca = config?.pesoPresenca ?? 1.0;
   const pesoIndicacao = config?.pesoIndicacao ?? 1.0;
-  const score = (pesoPresenca * notaPresenca) + (pesoIndicacao * notaIndicacao);
+  const score = pesoPresenca * notaPresenca + pesoIndicacao * notaIndicacao;
 
   await prisma.orm.public.Encontrista.create({
     encontroId: encontro.id,
@@ -125,8 +122,12 @@ export async function criarEncontrista(
     ...(cep ? { cep } : {}),
   });
 
+  // Recalcula a classificação de prioridade de todos.
+  await atualizarScores();
+
   revalidatePath("/painel/encontristas");
   revalidatePath("/painel");
+  revalidatePath("/painel/grupos");
 
   return { success: `${nome} foi cadastrado com sucesso.` };
 }
