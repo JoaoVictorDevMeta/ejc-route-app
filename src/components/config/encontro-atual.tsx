@@ -1,6 +1,9 @@
 import { CalendarDays, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 
 type EncontroAtualData = {
   nome: string;
@@ -39,7 +42,15 @@ export function EncontroAtual({ encontro }: { encontro: EncontroAtualData | null
           </div>
           <CardTitle className="text-xl">{encontro.nome}</CardTitle>
         </div>
-        <Badge variant="secondary">Ativo</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">Ativo</Badge>
+          <Button variant="outline" size="sm" >
+            <Link href="/painel/config/encontro" className="flex">
+              <Pencil className="mr-1.5 h-3.5 w-3.5" />
+              Editar
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
         <div className="flex items-start gap-2"><CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>Data: <strong className="font-medium text-foreground">{formatarData(encontro.data)}</strong></span></div>
