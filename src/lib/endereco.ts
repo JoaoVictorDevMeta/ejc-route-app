@@ -31,9 +31,7 @@ export function parseEnderecoCompleto(
 
   // Último item: "Cidade - UF"
   const cidadeUf = partes.pop() ?? "";
-  const [cidade, uf] = cidadeUf
-    .split(" - ")
-    .map((s) => s.trim());
+  const [cidade, uf] = cidadeUf.split(" - ").map((s) => s.trim());
 
   let rua = "";
   let numero = "";
@@ -41,7 +39,8 @@ export function parseEnderecoCompleto(
 
   if (partes.length > 0) {
     // Heurística: se o segundo item for só dígitos (opcionalmente com letra), é número
-    const segundoEhNumero = partes.length > 1 && /^\d+[a-zA-Z]?$/.test(partes[1]);
+    const segundoEhNumero =
+      partes.length > 1 && /^\d+[a-zA-Z]?$/.test(partes[1]);
 
     if (segundoEhNumero) {
       rua = partes[0];

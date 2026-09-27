@@ -5,11 +5,13 @@ import { LoaderCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { EnderecoParsed } from "@/lib/endereco";
 
 type EnderecoFieldsProps = {
   campo: string;
   titulo: string;
   descricao?: string;
+  defaultValue?: Partial<EnderecoParsed>;
 };
 
 type Endereco = {
@@ -21,7 +23,7 @@ type Endereco = {
   uf: string;
 };
 
-const enderecoInicial: Endereco = {
+const enderecoVazio: Endereco = {
   cep: "",
   rua: "",
   numero: "",
@@ -30,8 +32,16 @@ const enderecoInicial: Endereco = {
   uf: "",
 };
 
-export function EnderecoFields({ campo, titulo, descricao }: EnderecoFieldsProps) {
-  const [endereco, setEndereco] = useState(enderecoInicial);
+export function EnderecoFields({
+  campo,
+  titulo,
+  descricao,
+  defaultValue,
+}: EnderecoFieldsProps) {
+  const [endereco, setEndereco] = useState<Endereco>({
+    ...enderecoVazio,
+    ...defaultValue,
+  });
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [mensagem, setMensagem] = useState("");
 
@@ -92,6 +102,7 @@ export function EnderecoFields({ campo, titulo, descricao }: EnderecoFieldsProps
     <fieldset className="space-y-3 rounded-xl border border-primary/10 p-4">
       <legend className="px-1 text-sm font-semibold">{titulo}</legend>
       {descricao && <p className="text-xs text-muted-foreground">{descricao}</p>}
+
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div className="space-y-2">
           <Label htmlFor={`${campo}-cep`}>CEP</Label>
@@ -106,31 +117,67 @@ export function EnderecoFields({ campo, titulo, descricao }: EnderecoFieldsProps
             maxLength={9}
           />
         </div>
-        <Button type="button" variant="outline" className="mt-auto gap-2" onClick={buscarCep} disabled={buscandoCep}>
-          {buscandoCep ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-auto gap-2"
+          onClick={buscarCep}
+          disabled={buscandoCep}
+        >
+          {buscandoCep ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}
           Buscar CEP
         </Button>
       </div>
+
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_120px]">
         <div className="space-y-2">
           <Label htmlFor={`${campo}-rua`}>Rua ou avenida</Label>
-          <Input id={`${campo}-rua`} value={endereco.rua} onChange={(event) => atualizar("rua", event.target.value)} placeholder="Ex.: Rua das Flores" required />
+          <Input
+            id={`${campo}-rua`}
+            value={endereco.rua}
+            onChange={(event) => atualizar("rua", event.target.value)}
+            placeholder="Ex.: Rua das Flores"
+            required
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${campo}-numero`}>Número</Label>
-          <Input id={`${campo}-numero`} value={endereco.numero} onChange={(event) => atualizar("numero", event.target.value)} placeholder="123" required />
+          <Input
+            id={`${campo}-numero`}
+            value={endereco.numero}
+            onChange={(event) => atualizar("numero", event.target.value)}
+            placeholder="123"
+            required
+          />
         </div>
       </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={`${campo}-bairro`}>Bairro</Label>
-          <Input id={`${campo}-bairro`} value={endereco.bairro} onChange={(event) => atualizar("bairro", event.target.value)} required />
+          <Input
+            id={`${campo}-bairro`}
+            value={endereco.bairro}
+            onChange={(event) => atualizar("bairro", event.target.value)}
+            required
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${campo}-cidade`}>Cidade e estado</Label>
-          <Input id={`${campo}-cidade`} value={endereco.cidade} onChange={(event) => atualizar("cidade", event.target.value)} placeholder="Ex.: Recife - PE" required />
+          <Input
+            id={`${campo}-cidade`}
+            value={endereco.cidade}
+            onChange={(event) => atualizar("cidade", event.target.value)}
+            placeholder="Ex.: Recife - PE"
+            required
+          />
         </div>
       </div>
+
       {mensagem && <p className="text-xs text-destructive">{mensagem}</p>}
       <input type="hidden" name={campo} value={enderecoCompleto} />
     </fieldset>

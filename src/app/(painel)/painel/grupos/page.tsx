@@ -40,7 +40,7 @@ export default async function GruposPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
-            <p className="flex items-center gap-2 text-sm text-muted-foreground"><CarFront className="h-4 w-4 text-primary" />Pais de carro cadastrados</p>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground"><CarFront className="h-4 w-4 text-primary" />Carros cadastrados</p>
             <p className="mt-1 text-3xl font-bold">{carros.length}</p>
           </CardContent>
         </Card>
@@ -79,8 +79,8 @@ export default async function GruposPage() {
             <div>
               <p className="font-semibold text-amber-800 dark:text-amber-300">Ainda faltam carros para transportar todos</p>
               <p className="mt-1 text-muted-foreground">
-                {carrosFaltantes > 0 && `Cadastre mais ${carrosFaltantes} ${carrosFaltantes === 1 ? "pai de carro" : "pais de carro"}. `}
-                {lugaresFaltantes > 0 && `Também faltam ${lugaresFaltantes} ${lugaresFaltantes === 1 ? "lugar" : "lugares"}.`}
+                {carrosFaltantes > 0 && `Cadastre mais ${carrosFaltantes} ${carrosFaltantes === 1 ? "casal" : "casais"}. `}
+                {lugaresFaltantes > 0 && ` ${lugaresFaltantes} ${lugaresFaltantes === 1 ? "encontrista" : "encontristas"} estão sem pais de carro.`}
               </p>
             </div>
           </CardContent>

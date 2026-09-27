@@ -24,17 +24,17 @@ export function NovoCarroForm() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <CarFront className="h-5 w-5 text-primary" />
-          Cadastrar pai de carro
+          Cadastrar novo carro
         </CardTitle>
         <CardDescription>
-          Informe de onde ele sai. Essa origem será usada para montar uma rota eficiente até o local do encontro.
+          Informe de onde eles saem. Essa origem será usada para montar uma rota eficiente até o local do encontro.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="motorista">Nome do pai de carro</Label>
-            <Input id="motorista" name="motorista" placeholder="Ex.: João da Silva" required />
+            <Label htmlFor="motorista">Nome do casal</Label>
+            <Input id="motorista" name="motorista" placeholder="Ex.: João & Anna" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="capacidade">Lugares disponíveis</Label>
@@ -62,7 +62,7 @@ export function NovoCarroForm() {
           <div className="flex justify-end border-t pt-5 md:col-span-2">
             <Button type="submit" disabled={pending} className="gap-2">
               <CarFront className="h-4 w-4" />
-              {pending ? "Localizando origem..." : "Cadastrar pai de carro"}
+              {pending ? "Localizando origem..." : "Cadastrar carro"}
             </Button>
           </div>
         </form>
